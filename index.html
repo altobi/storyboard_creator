@@ -1,0 +1,2444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storyboard Creator - Professional Film Pitch Tool</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23007acc' stroke-width='1.5'%3E%3Crect x='3' y='5' width='18' height='14' rx='1.5'/%3E%3Ccircle cx='7' cy='9' r='1.5' fill='%23007acc'/%3E%3Ccircle cx='7' cy='15' r='1.5' fill='%23007acc'/%3E%3Cpath d='M11 8h6M11 12h6M11 16h6'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Caveat:wght@400;700&family=Permanent+Marker&family=Shadows+Into+Light&family=Dancing+Script:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+    <!-- Image Compression Library -->
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+    <!-- Konva.js for Annotation Tools -->
+    <script src="https://unpkg.com/konva@9/konva.min.js"></script>
+    <!-- canvg for SVG rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/canvg/dist/browser/canvg.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Annotation System -->
+    <script src="features/annotation/AnnotationSystem.js" defer></script>
+    <!-- Legacy drawing system (kept for backward compatibility during transition) -->
+    <script src="features/drawing/drawing.js" defer></script>
+    <!-- Drawing Canvas -->
+    <script src="features/drawing/DrawingCanvas.js" defer></script>
+    <!-- Shot List Manager -->
+    <script src="managers/ShotListManager.js" defer></script>
+    <!-- Shot List Controller -->
+    <script src="ui/ShotListController.js" defer></script>
+    <!-- Previs Manager -->
+    <script src="managers/PrevisManager.js" defer></script>
+    <!-- Previs Controller -->
+    <script src="ui/PrevisController.js" defer></script>
+    <!-- XML Export Service -->
+    <script src="services/XMLExportService.js" defer></script>
+    <!-- XMEML Export Service -->
+    <script src="services/XMEMLExportService.js" defer></script>
+    <!-- EDL Export Service -->
+    <script src="services/EDLExportService.js" defer></script>
+    <!-- Video Export Service -->
+    <script src="services/VideoExportService.js" defer></script>
+    <!-- Folder Export Service -->
+    <script src="services/FolderExportService.js" defer></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Professional Toolbar -->
+        <header class="toolbar">
+            <div class="toolbar-left">
+                <div class="toolbar-group">
+                    <div class="toolbar-menu">
+                        <button id="fileMenuBtn" class="toolbar-btn toolbar-btn-menu" title="File Menu">
+                            <i data-lucide="file-text"></i>
+                            <span>File</span>
+                            <i data-lucide="chevron-down" class="menu-arrow"></i>
+                        </button>
+                        <div id="fileMenu" class="toolbar-menu-dropdown">
+                            <!-- App Title in Menu -->
+                            <div class="menu-header">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 16px; height: 16px;">
+                                    <rect x="3" y="5" width="18" height="14" rx="1.5"/>
+                                    <circle cx="7" cy="9" r="1.5" fill="currentColor"/>
+                                    <circle cx="7" cy="15" r="1.5" fill="currentColor"/>
+                                    <path d="M11 8h6M11 12h6M11 16h6"/>
+                                </svg>
+                                <span>Storyboard Creator</span>
+                            </div>
+                            <div class="menu-divider"></div>
+                            <!-- Project Section -->
+                            <button id="newProject" class="menu-item" title="New Project">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 5v14M5 12h14"/>
+                                </svg>
+                                <span>New Project</span>
+                            </button>
+                            <input type="file" id="openProject" accept=".sbp" style="display: none;">
+                            <button id="openProjectBtn" class="menu-item" title="Open Project">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                                <span>Open Project</span>
+                            </button>
+                            <div class="menu-divider"></div>
+                            <button id="saveProject" class="menu-item" title="Save Project">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                    <polyline points="17 21 17 13 7 13 7 21"/>
+                                    <polyline points="7 3 7 8 15 8"/>
+                                </svg>
+                                <span>Save</span>
+                            </button>
+                            <button id="saveProjectAs" class="menu-item" title="Save Project As">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                                <span>Save As</span>
+                            </button>
+                            <div class="menu-divider"></div>
+                            <!-- Images Section -->
+                            <input type="file" id="imageFolder" webkitdirectory directory multiple accept="image/*" style="display: none;">
+                            <button id="importImagesBtn" class="menu-item" title="Import Images">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                                <span>Import Images</span>
+                            </button>
+                            <div class="menu-divider"></div>
+                            <!-- Export Section -->
+                            <div class="menu-item menu-item-submenu" id="exportMenuBtn" title="Export">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                                <span>Export</span>
+                                <i data-lucide="chevron-right" class="menu-arrow-right"></i>
+                            </div>
+                            <div id="exportSubmenu" class="toolbar-menu-dropdown submenu" style="display: none;">
+                                <button id="exportStoryboardPDF" class="menu-item" title="Export Storyboard PDF">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                        <polyline points="14 2 14 8 20 8"/>
+                                        <line x1="16" y1="13" x2="8" y2="13"/>
+                                        <line x1="16" y1="17" x2="8" y2="17"/>
+                                    </svg>
+                                    <span>Export Storyboard PDF</span>
+                                </button>
+                                <button id="exportShotListPDF" class="menu-item" title="Export Shot List PDF">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                        <polyline points="14 2 14 8 20 8"/>
+                                        <line x1="9" y1="11" x2="15" y2="11"/>
+                                        <line x1="9" y1="15" x2="15" y2="15"/>
+                                        <line x1="9" y1="19" x2="15" y2="19"/>
+                                    </svg>
+                                    <span>Export Shot List PDF</span>
+                                </button>
+                                <button id="exportPrevizBundled" class="menu-item" title="Export Previz Timeline (XML + Media)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                                        <line x1="12" y1="22.08" x2="12" y2="12"/>
+                                    </svg>
+                                    <span>Export Previz Timeline (XML + Media)</span>
+                                </button>
+                            </div>
+                            <div class="menu-divider"></div>
+                            <button id="aboutBtn" class="menu-item" title="About">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M12 16v-4M12 8h.01"/>
+                                </svg>
+                                <span>About</span>
+                            </button>
+                            <button id="closeProject" class="menu-item" title="Close Project">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                                <span>Close Project</span>
+                            </button>
+                        </div>
+                        </div>
+                    </div>
+                    <!-- Save Status Indicator -->
+                    <div id="saveStatusIndicator" class="save-status-indicator" title="All changes saved">
+                        <div class="save-status-circle"></div>
+                    </div>
+                </div>
+                
+                <div class="toolbar-center">
+                    <!-- Workspace Tabs -->
+                    <div class="workspace-tabs">
+                        <button id="tabStoryboard" class="workspace-tab active" data-workspace="storyboard">
+                            <i data-lucide="layout-grid"></i>
+                            <span>Storyboard</span>
+                        </button>
+                        <button id="tabShotList" class="workspace-tab" data-workspace="shotlist">
+                            <i data-lucide="list-checks"></i>
+                            <span>Shot List</span>
+                        </button>
+                        <button id="tabPreviz" class="workspace-tab" data-workspace="previz">
+                            <i data-lucide="play"></i>
+                            <span>Previz</span>
+                        </button>
+                    </div>
+                    <!-- Project Name (smaller, to the right of tabs) -->
+                    <div class="toolbar-project-info">
+                        <span id="projectName" class="project-name">No project open</span>
+                    </div>
+                </div>
+            
+            <div class="toolbar-actions">
+            
+            <div class="toolbar-zoom">
+                <button id="zoomOut" class="zoom-btn" title="Zoom Out">
+                    <i data-lucide="zoom-out"></i>
+                </button>
+                <div class="zoom-control-wrapper">
+                    <div class="zoom-control">
+                        <input type="number" id="zoomLevel" class="zoom-input" min="25" max="300" value="100" step="1" title="Zoom Level">
+                        <button class="zoom-dropdown-btn" id="zoomDropdownBtn" title="Zoom Options">
+                            <i data-lucide="chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="zoom-dropdown" id="zoomDropdown">
+                        <button class="zoom-dropdown-item" data-zoom="fit">
+                            <i data-lucide="maximize-2"></i>
+                            <span>Fit to Screen</span>
+                        </button>
+                        <div class="zoom-dropdown-divider"></div>
+                        <button class="zoom-dropdown-item" data-zoom="25">25%</button>
+                        <button class="zoom-dropdown-item" data-zoom="50">50%</button>
+                        <button class="zoom-dropdown-item" data-zoom="75">75%</button>
+                        <button class="zoom-dropdown-item" data-zoom="100">100%</button>
+                        <button class="zoom-dropdown-item" data-zoom="125">125%</button>
+                        <button class="zoom-dropdown-item" data-zoom="150">150%</button>
+                        <button class="zoom-dropdown-item" data-zoom="200">200%</button>
+                        <button class="zoom-dropdown-item" data-zoom="300">300%</button>
+                    </div>
+                </div>
+                <button id="zoomIn" class="zoom-btn" title="Zoom In">
+                    <i data-lucide="zoom-in"></i>
+                </button>
+            </div>
+            
+            <div class="toolbar-panels">
+                <button id="togglePageSettings" class="toolbar-panel-btn" title="Page Settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <line x1="9" y1="3" x2="9" y2="21"/>
+                    </svg>
+                </button>
+                <button id="toggleTextSettings" class="toolbar-panel-btn" title="Text Settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="4 7 4 4 20 4 20 7"/>
+                        <line x1="9" y1="20" x2="15" y2="20"/>
+                        <line x1="12" y1="4" x2="12" y2="20"/>
+                    </svg>
+                </button>
+                <button id="toggleAnnotationPanel" class="toolbar-panel-btn" title="Annotation Tools">
+                    <i data-lucide="highlighter"></i>
+                </button>
+                <button id="toggleAdvancedSettings" class="toolbar-panel-btn" title="Advanced Settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
+                    </svg>
+                </button>
+                <button id="toggleProjectInfo" class="toolbar-panel-btn" title="Project Info">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 16v-4M12 8h.01"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Page Settings Panel -->
+        <aside id="pageSettingsPanel" class="settings-panel">
+            <div class="panel-header">
+                <h3>Page Settings</h3>
+                <button class="panel-close" id="closePageSettings">&times;</button>
+            </div>
+            
+            <div class="panel-content">
+                <!-- Page Layout Section -->
+                <div class="settings-section">
+                    <h4 class="section-title">Page Layout</h4>
+                    
+                    <div class="setting-group">
+                        <label for="pageOrientation">Orientation</label>
+                        <select id="pageOrientation">
+                            <option value="landscape" selected>Landscape</option>
+                            <option value="portrait">Portrait</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="pageSize">Page Size</label>
+                        <select id="pageSize">
+                            <option value="A4">A4</option>
+                            <option value="A3">A3</option>
+                            <option value="Letter">Letter (8.5" × 11")</option>
+                            <option value="Legal">Legal (8.5" × 14")</option>
+                            <option value="Tabloid">Tabloid (11" × 17")</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="imageAspectRatio">Image Aspect Ratio</label>
+                        <select id="imageAspectRatio" style="width: 100%; margin-bottom: 8px;">
+                            <option value="16:9" selected>16:9 (Widescreen)</option>
+                            <option value="21:9">21:9 (Ultra-wide)</option>
+                            <option value="2.35:1">2.35:1 (Anamorphic)</option>
+                            <option value="2.39:1">2.39:1 (Cinematic Scope)</option>
+                            <option value="1.85:1">1.85:1 (Academy Flat)</option>
+                            <option value="4:3">4:3 (Classic)</option>
+                            <option value="1:1">1:1 (Square)</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                        <div id="customAspectRatioContainer" style="display: none; margin-top: 8px;">
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <input type="number" id="customAspectRatioWidth" min="0.1" max="10" step="0.1" value="16" class="scale-input" style="width: 80px;">
+                                <span>:</span>
+                                <input type="number" id="customAspectRatioHeight" min="0.1" max="10" step="0.1" value="9" class="scale-input" style="width: 80px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <label>Layout</label>
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <div style="flex: 1;">
+                                <label for="layoutRows" style="font-size: 12px; color: #999; margin-bottom: 4px; display: block;">Rows</label>
+                                <div class="scale-control">
+                                    <input type="range" id="layoutRows" min="1" max="4" value="2" step="1">
+                                    <input type="number" id="layoutRowsInput" min="1" max="4" value="2" step="1" class="scale-input">
+                                </div>
+                            </div>
+                            <div style="flex: 1;">
+                                <label for="layoutCols" style="font-size: 12px; color: #999; margin-bottom: 4px; display: block;">Columns</label>
+                                <div class="scale-control">
+                                    <input type="range" id="layoutCols" min="1" max="4" value="2" step="1">
+                                    <input type="number" id="layoutColsInput" min="1" max="4" value="2" step="1" class="scale-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="layoutInfo" style="font-size: 11px; color: #999; margin-top: 5px;">
+                            Total: 4 images per page
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="frameScale">Frame Scale (%)</label>
+                        <div class="scale-control">
+                            <input type="range" id="frameScale" min="0" max="100" value="100" step="1">
+                            <input type="number" id="frameScaleInput" class="scale-input" min="0" max="100" value="100" step="1">
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="imageScale">Image Scale (%)</label>
+                        <div class="scale-control">
+                            <input type="range" id="imageScale" min="0" max="100" value="100">
+                            <input type="number" id="imageScaleInput" min="0" max="100" value="100" class="scale-input">
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="frameTextScale">Frame Text Height Scale (%)</label>
+                        <div class="scale-control">
+                            <input type="range" id="frameTextScale" min="0" max="100" value="100">
+                            <input type="number" id="frameTextScaleInput" min="0" max="100" value="100" class="scale-input">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page Appearance Section -->
+                <div class="settings-section">
+                    <h4 class="section-title">Page Appearance</h4>
+                    
+                    <div class="setting-group">
+                        <label for="pageBackgroundColor">Background Color</label>
+                        <div style="position: relative; display: inline-block;">
+                            <input type="color" id="pageBackgroundColor" value="#404040">
+                            <button type="button" class="color-picker-close" onclick="document.getElementById('pageBackgroundColor').blur()" title="Close color picker">×</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Page Features Section -->
+                <div class="settings-section">
+                    <h4 class="section-title">Page Features</h4>
+                    
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="separateScenes"> Separate scenes to different pages
+                        </label>
+                    </div>
+
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="showBottomText" checked> Show bottom text on pages
+                        </label>
+                    </div>
+
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="enablePageNumbers" checked> Enable page numbers
+                        </label>
+                    </div>
+
+                <div id="pageNumberSettings" class="setting-group" style="display: block;">
+                    <label for="pageNumberPosition">Page Number Position</label>
+                    <select id="pageNumberPosition">
+                        <option value="top-left">Top Left</option>
+                        <option value="top-center">Top Center</option>
+                        <option value="top-right">Top Right</option>
+                        <option value="bottom-left">Bottom Left</option>
+                        <option value="bottom-center" selected>Bottom Center</option>
+                        <option value="bottom-right">Bottom Right</option>
+                    </select>
+                    <label for="pageNumberFontSize" style="margin-top: 8px;">Font Size</label>
+                    <input type="number" id="pageNumberFontSize" min="8" max="48" value="12">
+                    <label for="pageNumberColor" style="margin-top: 8px;">Color</label>
+                    <div style="position: relative; display: inline-block;">
+                        <input type="color" id="pageNumberColor" value="#b4b4b4">
+                        <button type="button" class="color-picker-close" onclick="document.getElementById('pageNumberColor').blur()" title="Close color picker">×</button>
+                    </div>
+                </div>
+
+                </div>
+
+                <!-- Cover Page Section -->
+                <div class="settings-section">
+                    <h4 class="section-title">Cover Page</h4>
+                    
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="enableCoverPage"> Enable cover page
+                        </label>
+                    </div>
+
+                    <div id="coverPageSettings" class="setting-group" style="display: none;">
+                        <label for="coverPageTitle">Project Title</label>
+                        <input type="text" id="coverPageTitle" placeholder="Enter project title">
+                        
+                        <label for="coverPageTitleFontFamily">Title Font Family</label>
+                        <select id="coverPageTitleFontFamily">
+                            <option value="'Kalam', cursive" selected>Kalam (Handwriting)</option>
+                            <option value="Arial, sans-serif">Arial</option>
+                            <option value="'Helvetica Neue', Helvetica, Arial, sans-serif">Helvetica Neue</option>
+                            <option value="Georgia, serif">Georgia</option>
+                            <option value="'Times New Roman', serif">Times New Roman</option>
+                            <option value="'Courier New', monospace">Courier New</option>
+                            <option value="Verdana, sans-serif">Verdana</option>
+                            <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                            <option value="'Caveat', cursive">Caveat (Handwriting)</option>
+                            <option value="'Shadows Into Light', cursive">Shadows Into Light (Handwriting)</option>
+                            <option value="'Dancing Script', cursive">Dancing Script (Handwriting)</option>
+                            <option value="'Pacifico', cursive">Pacifico (Handwriting)</option>
+                        </select>
+                        
+                        <label for="coverPageTitleFontSize">Title Font Size</label>
+                        <input type="number" id="coverPageTitleFontSize" min="12" max="72" value="48">
+                        
+                        <label for="coverPageTitleColor">Title Color</label>
+                        <div style="position: relative; display: inline-block;">
+                            <input type="color" id="coverPageTitleColor" value="#000000">
+                            <button type="button" class="color-picker-close" onclick="document.getElementById('coverPageTitleColor').blur()" title="Close color picker">×</button>
+                        </div>
+                        
+                        <label for="coverPageYear">Year</label>
+                        <input type="text" id="coverPageYear" placeholder="2024">
+                        
+                        <label for="coverPageYearFontFamily">Year Font Family</label>
+                        <select id="coverPageYearFontFamily">
+                            <option value="'Kalam', cursive" selected>Kalam (Handwriting)</option>
+                            <option value="Arial, sans-serif">Arial</option>
+                            <option value="'Helvetica Neue', Helvetica, Arial, sans-serif">Helvetica Neue</option>
+                            <option value="Georgia, serif">Georgia</option>
+                            <option value="'Times New Roman', serif">Times New Roman</option>
+                            <option value="'Courier New', monospace">Courier New</option>
+                            <option value="Verdana, sans-serif">Verdana</option>
+                            <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                            <option value="'Caveat', cursive">Caveat (Handwriting)</option>
+                            <option value="'Shadows Into Light', cursive">Shadows Into Light (Handwriting)</option>
+                            <option value="'Dancing Script', cursive">Dancing Script (Handwriting)</option>
+                            <option value="'Pacifico', cursive">Pacifico (Handwriting)</option>
+                        </select>
+                        
+                        <label for="coverPageYearFontSize">Year Font Size</label>
+                        <input type="number" id="coverPageYearFontSize" min="12" max="72" value="24">
+                        
+                        <label for="coverPageYearColor">Year Color</label>
+                        <div style="position: relative; display: inline-block;">
+                            <input type="color" id="coverPageYearColor" value="#666666">
+                            <button type="button" class="color-picker-close" onclick="document.getElementById('coverPageYearColor').blur()" title="Close color picker">×</button>
+                        </div>
+                        
+                        <label for="coverPageCreators">Creators</label>
+                        <textarea id="coverPageCreators" rows="2" placeholder="Enter creators..."></textarea>
+                        
+                        <label for="coverPageCreatorsFontFamily">Creators Font Family</label>
+                        <select id="coverPageCreatorsFontFamily">
+                            <option value="'Kalam', cursive" selected>Kalam (Handwriting)</option>
+                            <option value="Arial, sans-serif">Arial</option>
+                            <option value="'Helvetica Neue', Helvetica, Arial, sans-serif">Helvetica Neue</option>
+                            <option value="Georgia, serif">Georgia</option>
+                            <option value="'Times New Roman', serif">Times New Roman</option>
+                            <option value="'Courier New', monospace">Courier New</option>
+                            <option value="Verdana, sans-serif">Verdana</option>
+                            <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                            <option value="'Caveat', cursive">Caveat (Handwriting)</option>
+                            <option value="'Shadows Into Light', cursive">Shadows Into Light (Handwriting)</option>
+                            <option value="'Dancing Script', cursive">Dancing Script (Handwriting)</option>
+                            <option value="'Pacifico', cursive">Pacifico (Handwriting)</option>
+                        </select>
+                        
+                        <label for="coverPageCreatorsFontSize">Creators Font Size</label>
+                        <input type="number" id="coverPageCreatorsFontSize" min="12" max="72" value="18">
+                        
+                        <label for="coverPageCreatorsColor">Creators Color</label>
+                        <div style="position: relative; display: inline-block;">
+                            <input type="color" id="coverPageCreatorsColor" value="#333333">
+                            <button type="button" class="color-picker-close" onclick="document.getElementById('coverPageCreatorsColor').blur()" title="Close color picker">×</button>
+                        </div>
+                        
+                        <label for="coverPageLogo">Logo</label>
+                        <input type="file" id="coverPageLogo" accept="image/*" style="display: none;">
+                        <button id="coverPageLogoBtn" class="btn btn-secondary">Select Logo</button>
+                        <div id="coverPageLogoPreview"></div>
+                    </div>
+                </div>
+
+                <!-- Watermark Section -->
+                <div class="settings-section">
+                    <h4 class="section-title">Watermark</h4>
+                    
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="enableWatermark"> Enable watermark
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Watermark Settings (nested) -->
+
+                <div id="watermarkSettings" class="setting-group" style="display: none;">
+                    <label for="watermarkType">Watermark Type</label>
+                    <select id="watermarkType">
+                        <option value="text">Text</option>
+                        <option value="image">Image</option>
+                    </select>
+                    
+                    <div id="watermarkTextSettings">
+                        <label for="watermarkText">Watermark Text</label>
+                        <input type="text" id="watermarkText" placeholder="Enter watermark text">
+                    </div>
+                    
+                    <div id="watermarkImageSettings" style="display: none;">
+                        <label for="watermarkImage">Watermark Image</label>
+                        <input type="file" id="watermarkImage" accept="image/*" style="display: none;">
+                        <button id="watermarkImageBtn" class="btn btn-secondary">Select Image</button>
+                        <div id="watermarkImagePreview"></div>
+                        
+                        <label for="watermarkImagePosition" style="margin-top: 12px;">Position</label>
+                        <select id="watermarkImagePosition">
+                            <option value="center" selected>Center</option>
+                            <option value="top-left">Top Left</option>
+                            <option value="top-center">Top Center</option>
+                            <option value="top-right">Top Right</option>
+                            <option value="center-left">Center Left</option>
+                            <option value="center-right">Center Right</option>
+                            <option value="bottom-left">Bottom Left</option>
+                            <option value="bottom-center">Bottom Center</option>
+                            <option value="bottom-right">Bottom Right</option>
+                        </select>
+                        
+                        <label for="watermarkImageSize" style="margin-top: 12px;">Size (%)</label>
+                        <div class="scale-control">
+                            <input type="range" id="watermarkImageSize" min="10" max="100" value="50">
+                            <input type="number" id="watermarkImageSizeInput" min="10" max="100" value="50" class="scale-input">
+                        </div>
+                    </div>
+                    
+                    <label for="watermarkOpacity">Opacity</label>
+                    <input type="range" id="watermarkOpacity" min="0" max="100" value="30">
+                    <span id="watermarkOpacityValue">30%</span>
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- Text Settings Panel -->
+        <aside id="textSettingsPanel" class="settings-panel">
+            <div class="panel-header">
+                <h3>Text Settings</h3>
+                <button class="panel-close" id="closeTextSettings">&times;</button>
+            </div>
+            
+            <div class="panel-content">
+                <!-- Page Text Settings Section -->
+                <div class="settings-section">
+                    <h4 class="section-title">Page Text</h4>
+                    
+                    <div class="setting-group">
+                    <label for="pageFontFamily">Font Family</label>
+                    <select id="pageFontFamily">
+                        <option value="'Kalam', cursive" selected>Kalam (Handwriting)</option>
+                        <option value="Arial, sans-serif">Arial</option>
+                        <option value="'Helvetica Neue', Helvetica, Arial, sans-serif">Helvetica Neue</option>
+                        <option value="Georgia, serif">Georgia</option>
+                        <option value="'Times New Roman', serif">Times New Roman</option>
+                        <option value="'Courier New', monospace">Courier New</option>
+                        <option value="Verdana, sans-serif">Verdana</option>
+                        <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                        <option value="'Kalam', cursive">Kalam (Handwriting)</option>
+                        <option value="'Caveat', cursive">Caveat (Handwriting)</option>
+                        <option value="'Shadows Into Light', cursive">Shadows Into Light (Handwriting)</option>
+                        <option value="'Dancing Script', cursive">Dancing Script (Handwriting)</option>
+                        <option value="'Pacifico', cursive">Pacifico (Handwriting)</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label for="pageFontSize">Font Size</label>
+                    <input type="number" id="pageFontSize" min="8" max="72" value="12">
+                </div>
+
+                <div class="setting-group">
+                    <label for="pageFontWeight">Font Weight</label>
+                    <select id="pageFontWeight">
+                        <option value="normal">Normal</option>
+                        <option value="bold">Bold</option>
+                        <option value="100">Thin</option>
+                        <option value="300">Light</option>
+                        <option value="500">Medium</option>
+                        <option value="700">Bold</option>
+                        <option value="900">Black</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label for="pageFontStyle">Font Style</label>
+                    <select id="pageFontStyle">
+                        <option value="normal">Normal</option>
+                        <option value="italic">Italic</option>
+                        <option value="oblique">Oblique</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label for="pageLineHeight">Line Height</label>
+                    <input type="number" id="pageLineHeight" min="1" max="3" step="0.1" value="1.5">
+                </div>
+
+                <div class="setting-group">
+                    <label for="pageTextColor">Text Color</label>
+                    <div style="position: relative; display: inline-block;">
+                        <input type="color" id="pageTextColor" value="#b4b4b4">
+                        <button type="button" class="color-picker-close" onclick="document.getElementById('pageTextColor').blur()" title="Close color picker">×</button>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label for="pageTextAlign">Text Alignment</label>
+                    <select id="pageTextAlign">
+                        <option value="left">Left</option>
+                        <option value="center">Center</option>
+                        <option value="right">Right</option>
+                        <option value="justify">Justify</option>
+                    </select>
+                </div>
+
+                </div>
+
+                <!-- Frame Text Settings Section -->
+                <div class="settings-section">
+                    <h4 class="section-title">Frame Text</h4>
+                    
+                    <div class="setting-group">
+                        <label for="frameFontFamily">Font Family</label>
+                        <select id="frameFontFamily">
+                        <option value="'Kalam', cursive" selected>Kalam (Handwriting)</option>
+                        <option value="Arial, sans-serif">Arial</option>
+                        <option value="'Helvetica Neue', Helvetica, Arial, sans-serif">Helvetica Neue</option>
+                        <option value="Georgia, serif">Georgia</option>
+                        <option value="'Times New Roman', serif">Times New Roman</option>
+                        <option value="'Courier New', monospace">Courier New</option>
+                        <option value="Verdana, sans-serif">Verdana</option>
+                        <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                        <option value="'Kalam', cursive">Kalam (Handwriting)</option>
+                        <option value="'Caveat', cursive">Caveat (Handwriting)</option>
+                        <option value="'Shadows Into Light', cursive">Shadows Into Light (Handwriting)</option>
+                        <option value="'Dancing Script', cursive">Dancing Script (Handwriting)</option>
+                        <option value="'Pacifico', cursive">Pacifico (Handwriting)</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label for="frameFontSize">Font Size</label>
+                    <input type="number" id="frameFontSize" min="8" max="72" value="12">
+                </div>
+
+                <div class="setting-group">
+                    <label for="frameFontWeight">Font Weight</label>
+                    <select id="frameFontWeight">
+                        <option value="normal">Normal</option>
+                        <option value="bold">Bold</option>
+                        <option value="100">Thin</option>
+                        <option value="300">Light</option>
+                        <option value="500">Medium</option>
+                        <option value="700">Bold</option>
+                        <option value="900">Black</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label for="frameFontStyle">Font Style</label>
+                    <select id="frameFontStyle">
+                        <option value="normal">Normal</option>
+                        <option value="italic">Italic</option>
+                        <option value="oblique">Oblique</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label for="frameTextColor">Text Color</label>
+                    <div style="position: relative; display: inline-block;">
+                        <input type="color" id="frameTextColor" value="#b4b4b4">
+                        <button type="button" class="color-picker-close" onclick="document.getElementById('frameTextColor').blur()" title="Close color picker">×</button>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label for="frameTextAlign">Text Alignment</label>
+                    <select id="frameTextAlign">
+                        <option value="left">Left</option>
+                        <option value="center">Center</option>
+                        <option value="right">Right</option>
+                        <option value="justify">Justify</option>
+                    </select>
+                </div>
+
+                </div>
+
+                <!-- Shot Number Settings Section -->
+                <div class="settings-section">
+                    <h4 class="section-title">Shot Number</h4>
+                    
+                    <div class="setting-group">
+                        <label for="shotFontFamily">Font Family</label>
+                        <select id="shotFontFamily">
+                        <option value="'Kalam', cursive" selected>Kalam (Handwriting)</option>
+                        <option value="Arial, sans-serif">Arial</option>
+                        <option value="'Helvetica Neue', Helvetica, Arial, sans-serif">Helvetica Neue</option>
+                        <option value="Georgia, serif">Georgia</option>
+                        <option value="'Times New Roman', serif">Times New Roman</option>
+                        <option value="'Courier New', monospace">Courier New</option>
+                        <option value="Verdana, sans-serif">Verdana</option>
+                        <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                        <option value="'Kalam', cursive">Kalam (Handwriting)</option>
+                        <option value="'Caveat', cursive">Caveat (Handwriting)</option>
+                        <option value="'Shadows Into Light', cursive">Shadows Into Light (Handwriting)</option>
+                        <option value="'Dancing Script', cursive">Dancing Script (Handwriting)</option>
+                        <option value="'Pacifico', cursive">Pacifico (Handwriting)</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label for="shotFontSize">Font Size</label>
+                    <input type="number" id="shotFontSize" min="8" max="72" value="14">
+                </div>
+
+                <div class="setting-group">
+                    <label for="shotFontWeight">Font Weight</label>
+                    <select id="shotFontWeight">
+                        <option value="normal">Normal</option>
+                        <option value="bold" selected>Bold</option>
+                        <option value="100">Thin</option>
+                        <option value="300">Light</option>
+                        <option value="500">Medium</option>
+                        <option value="700">Bold</option>
+                        <option value="900">Black</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label for="shotTextColor">Text Color</label>
+                    <div style="position: relative; display: inline-block;">
+                        <input type="color" id="shotTextColor" value="#ebebeb">
+                        <button type="button" class="color-picker-close" onclick="document.getElementById('shotTextColor').blur()" title="Close color picker">×</button>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label for="shotCircleScale">Rectangle Scale (%)</label>
+                    <div class="scale-control">
+                        <input type="range" id="shotCircleScale" min="50" max="200" value="100" step="1">
+                        <input type="number" id="shotCircleScaleInput" class="scale-input" min="50" max="200" value="100" step="1">
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Advanced Settings Panel -->
+        <aside id="advancedSettingsPanel" class="settings-panel">
+            <div class="panel-header">
+                <h3>Advanced Settings</h3>
+                <button class="panel-close" id="closeAdvancedSettings">&times;</button>
+            </div>
+            
+            <div class="panel-content">
+                <!-- Image Compression Section -->
+                <div class="settings-section">
+                    <h4 class="section-title">Image Compression</h4>
+                    
+                    <div class="info-box" style="background: #1e3a5f; border-left: 3px solid #007acc; padding: 12px; margin-bottom: 16px; border-radius: 4px;">
+                        <p style="margin: 0; color: #cccccc; font-size: 13px; line-height: 1.5;">
+                            <strong style="color: #ffffff;">Why compress images?</strong><br>
+                            Images are stored in the project file to ensure compatibility across browsers and after page reloads. 
+                            Compression significantly reduces project file size (often 70-90% smaller) while maintaining visual quality. 
+                            These settings apply to newly imported images.
+                        </p>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="compressionEnabled" checked> Enable image compression
+                        </label>
+                    </div>
+                    
+                    <div id="compressionSettings">
+                        <div class="setting-group">
+                            <label for="compressionMaxSize">Max File Size (MB)</label>
+                            <div class="scale-control">
+                                <input type="range" id="compressionMaxSize" min="0.1" max="5" value="1" step="0.1">
+                                <input type="number" id="compressionMaxSizeInput" class="scale-input" min="0.1" max="5" value="1" step="0.1">
+                            </div>
+                            <small style="color: #858585; font-size: 11px;">Maximum file size after compression</small>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <label for="compressionMaxDimension">Max Dimension (px)</label>
+                            <div class="scale-control">
+                                <input type="range" id="compressionMaxDimension" min="512" max="4096" value="1920" step="128">
+                                <input type="number" id="compressionMaxDimensionInput" class="scale-input" min="512" max="4096" value="1920" step="128">
+                            </div>
+                            <small style="color: #858585; font-size: 11px;">Maximum width or height (aspect ratio maintained)</small>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <label for="compressionQuality">Quality (%)</label>
+                            <div class="scale-control">
+                                <input type="range" id="compressionQuality" min="50" max="100" value="75" step="1">
+                                <input type="number" id="compressionQualityInput" class="scale-input" min="50" max="100" value="75" step="1">
+                            </div>
+                            <small style="color: #858585; font-size: 11px;">Higher = better quality but larger files (85% recommended)</small>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <label for="compressionFormat">Output Format</label>
+                            <select id="compressionFormat">
+                                <option value="webp" selected>WebP (Best compression)</option>
+                                <option value="jpeg">JPEG (Widest compatibility)</option>
+                                <option value="png">PNG (Lossless, larger files)</option>
+                            </select>
+                            <small style="color: #858585; font-size: 11px;">WebP offers best compression, JPEG has widest browser support</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Project Info Panel -->
+        <aside id="projectInfoPanel" class="settings-panel">
+            <div class="panel-header">
+                <h3>Project Info</h3>
+                <button class="panel-close" id="closeProjectInfo">&times;</button>
+            </div>
+            
+            <div class="panel-content">
+                <div class="settings-section">
+                    <h4 class="section-title">Project Statistics</h4>
+                    
+                    <div class="setting-group">
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #3e3e42;">
+                            <span style="color: #cccccc;">Total Frames:</span>
+                            <strong id="projectInfoFrames" style="color: #ffffff;">0</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #3e3e42;">
+                            <span style="color: #cccccc;">Total Shots:</span>
+                            <strong id="projectInfoShots" style="color: #ffffff;">0</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #3e3e42;">
+                            <span style="color: #cccccc;">Total Scenes:</span>
+                            <strong id="projectInfoScenes" style="color: #ffffff;">0</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #3e3e42;">
+                            <span style="color: #cccccc;">Total Pages:</span>
+                            <strong id="projectInfoPages" style="color: #ffffff;">0</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h4 class="section-title">Project File</h4>
+                    
+                    <div class="setting-group">
+                        <div style="padding: 8px 0; border-bottom: 1px solid #3e3e42;">
+                            <div style="color: #858585; font-size: 12px; margin-bottom: 4px;">Project Name</div>
+                            <div id="projectInfoName" style="color: #cccccc; font-size: 14px;">No project open</div>
+                        </div>
+                        <div style="padding: 8px 0; border-bottom: 1px solid #3e3e42;">
+                            <div style="color: #858585; font-size: 12px; margin-bottom: 4px;">File Path</div>
+                            <div id="projectInfoPath" style="color: #cccccc; font-size: 12px; word-break: break-all;">-</div>
+                        </div>
+                        <div style="padding: 8px 0; border-bottom: 1px solid #3e3e42;">
+                            <div style="color: #858585; font-size: 12px; margin-bottom: 4px;">Last Saved</div>
+                            <div id="projectInfoLastSaved" style="color: #cccccc; font-size: 12px;">-</div>
+                        </div>
+                        <div style="padding: 8px 0;">
+                            <div style="color: #858585; font-size: 12px; margin-bottom: 4px;">Project Size</div>
+                            <div id="projectInfoSize" style="color: #cccccc; font-size: 12px;">-</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h4 class="section-title">Settings Summary</h4>
+                    
+                    <div class="setting-group">
+                        <div style="padding: 8px 0; border-bottom: 1px solid #3e3e42;">
+                            <div style="color: #858585; font-size: 12px; margin-bottom: 4px;">Page Size</div>
+                            <div id="projectInfoPageSize" style="color: #cccccc; font-size: 12px;">-</div>
+                        </div>
+                        <div style="padding: 8px 0; border-bottom: 1px solid #3e3e42;">
+                            <div style="color: #858585; font-size: 12px; margin-bottom: 4px;">Orientation</div>
+                            <div id="projectInfoOrientation" style="color: #cccccc; font-size: 12px;">-</div>
+                        </div>
+                        <div style="padding: 8px 0; border-bottom: 1px solid #3e3e42;">
+                            <div style="color: #858585; font-size: 12px; margin-bottom: 4px;">Layout</div>
+                            <div id="projectInfoLayout" style="color: #cccccc; font-size: 12px;">-</div>
+                        </div>
+                        <div style="padding: 8px 0;">
+                            <div style="color: #858585; font-size: 12px; margin-bottom: 4px;">Compression</div>
+                            <div id="projectInfoCompression" style="color: #cccccc; font-size: 12px;">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Annotation Tools Panel -->
+        <aside id="annotationPanel" class="settings-panel">
+            <div class="panel-header">
+                <h3>Annotation Tools</h3>
+                <button class="panel-close" id="closeAnnotationPanel">&times;</button>
+            </div>
+            
+            <div class="panel-content">
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="enableAnnotation"> Enable annotations
+                    </label>
+                </div>
+
+                <div id="annotationControls" style="display: none;">
+                    <!-- Annotation Tools Section -->
+                    <div class="settings-section">
+                        <h4 class="section-title">Tools</h4>
+                        
+                        <div class="tool-selector">
+                            <button class="tool-btn" data-tool="select" title="Select">
+                                <i data-lucide="move"></i>
+                                <span>Select</span>
+                            </button>
+                            <button class="tool-btn active" data-tool="brush" title="Brush">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9.06 9.06L4.94 4.94a1.5 1.5 0 0 1 0-2.12l5.66-5.66a1.5 1.5 0 0 1 2.12 0l4.12 4.12a1.5 1.5 0 0 1 0 2.12l-5.66 5.66a1.5 1.5 0 0 1-2.12 0z"/>
+                                    <path d="M12 12l8 8"/>
+                                    <path d="M20 20l-8-8"/>
+                                </svg>
+                                <span>Brush</span>
+                            </button>
+                            <button class="tool-btn" data-tool="pen" title="Pen">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+                                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+                                    <path d="M2 2l7.586 7.586"/>
+                                    <circle cx="11" cy="11" r="2"/>
+                                </svg>
+                                <span>Pen</span>
+                            </button>
+                            <button class="tool-btn" data-tool="eraser" title="Eraser">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"/>
+                                    <path d="M3 21l6-6"/>
+                                </svg>
+                                <span>Eraser</span>
+                            </button>
+                            <div class="tool-btn-dropdown">
+                                <button class="tool-btn" id="shapesBtn" title="Shapes">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    </svg>
+                                    <span>Shapes</span>
+                                    <i data-lucide="chevron-down" style="width: 12px; height: 12px; margin-left: 4px;"></i>
+                                </button>
+                                <div class="shapes-dropdown-menu" id="shapesDropdown">
+                                    <div class="shapes-grid">
+                                        <button class="shapes-grid-item" data-tool="line" title="Line">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow" title="Arrow">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                                <polyline points="12 5 19 12 12 19"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-brush" title="Brush Arrow">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M5 12 Q8 8 12 12 Q16 16 19 12"/>
+                                                <polyline points="15 8 19 12 15 16"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-pan" title="Pan Right">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M2 12 Q8 4 14 12 Q8 20 2 12" stroke-linecap="round"/>
+                                                <polyline points="12 8 16 12 12 16"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-tilt" title="Tilt Up">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M12 20 Q12 12 12 4" stroke-linecap="round"/>
+                                                <polyline points="8 10 12 4 16 10"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-roll" title="Camera Roll">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M4 12 Q8 6 12 12 Q16 18 20 12" stroke-linecap="round"/>
+                                                <polyline points="20 12 22 10"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-zoom-in" title="Zoom In">
+                                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M4 6 L4 18 L14 16 L14 18 L20 12 L14 6 L14 8 Z"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-zoom-out" title="Zoom Out">
+                                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M4 9 L4 15 L16 20 L16 25 L26 12.5 L16 0 L16 5 Z"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-orbit" title="3D Orbit Ribbon">
+                                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M2 16 Q5 19 8 16 L7 16 L10 8 L16 16 L15 16 Q12 21 2 18 Z"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-tracking" title="Tracking Path">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="2,2">
+                                                <path d="M2 10 Q6 2 10 10 Q14 18 18 10" stroke-linecap="round"/>
+                                                <polyline points="16 8 18 10 16 12"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-crane" title="Crane / Boom Arc">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M2 10 Q8 -4 14 10" stroke-linecap="round"/>
+                                                <polyline points="12 6 14 10 12 14"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-zigzag" title="Action Zig-Zag">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="miter">
+                                                <polyline points="2 10 6 2 10 10 14 2 18 10 20 10"/>
+                                                <polyline points="18 10 20 8"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-u-turn" title="Block U-Turn">
+                                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M2 4 L16 4 Q20 4 20 8 L20 10 L18 10 L22 4 L28 10 L26 10 L26 8 Q26 2 16 2 L2 2 Z"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-split" title="Split Path">
+                                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                                <rect x="10" y="8" width="4" height="8"/>
+                                                <path d="M12 12 L4 4" stroke="currentColor" stroke-width="3" fill="none"/>
+                                                <path d="M12 12 L20 4" stroke="currentColor" stroke-width="3" fill="none"/>
+                                                <polyline points="4 4 2 2" stroke="currentColor" stroke-width="3" fill="none"/>
+                                                <polyline points="20 4 22 2" stroke="currentColor" stroke-width="3" fill="none"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-whip" title="Whip Pan">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="4" y1="4" x2="20" y2="4"/>
+                                                <line x1="2" y1="2" x2="16" y2="2" stroke-width="1"/>
+                                                <line x1="6" y1="8" x2="18" y2="8" stroke-width="1"/>
+                                                <polyline points="20 4 22 2"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-rack" title="Rack Focus">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="1,1">
+                                                <path d="M4 4 L18 4" stroke-dasharray="1,1"/>
+                                                <ellipse cx="8" cy="4" rx="6" ry="6"/>
+                                                <circle cx="8" cy="4" r="2" fill="currentColor"/>
+                                                <polyline points="18 4 20 2"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-3d-corner" title="3D Ribbon Turn">
+                                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M2 8 L12 8 L16 2 L20 6 L18 12 L12 16 L2 16 Z"/>
+                                                <line x1="12" y1="8" x2="12" y2="16" stroke="white" stroke-width="0.5" opacity="0.6"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-loop" title="The Loop">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M2 12 Q8 12 10 12 Q12 4 18 4 Q20 4 20 12" stroke-linecap="round"/>
+                                                <polyline points="20 12 22 10"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-dotted" title="Straight Dotted">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3,3">
+                                                <line x1="2" y1="12" x2="18" y2="12"/>
+                                                <polyline points="18 12 20 10"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-double" title="Two-Way">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="2" y1="12" x2="22" y2="12"/>
+                                                <polyline points="18 8 22 12 18 16"/>
+                                                <polyline points="6 16 2 12 6 8"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-shake" title="Shake / Rumble">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                <polyline points="2 12 4 8 6 12 8 8 10 12 12 8 14 12 16 8 18 12 20 12"/>
+                                                <polyline points="20 12 22 10"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-orbit-plan" title="Plan Orbit">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="1,1">
+                                                <ellipse cx="12" cy="12" rx="10" ry="5"/>
+                                                <polyline points="22 12 24 10"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-thin-zoom" title="Thin Perspective">
+                                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M2 8 L2 16 L20 14 L20 18 L28 12 L20 6 L20 10 Z"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="arrow-cut" title="Cut / Stop">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="#cc0000" stroke-width="2">
+                                                <line x1="5" y1="5" x2="19" y2="19"/>
+                                                <line x1="19" y1="5" x2="5" y2="19"/>
+                                            </svg>
+                                        </button>
+                                        <div class="shapes-grid-divider"></div>
+                                        <button class="shapes-grid-item" data-tool="rectangle" title="Rectangle">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="circle" title="Circle">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <circle cx="12" cy="12" r="10"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="ellipse" title="Ellipse">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <ellipse cx="12" cy="12" rx="10" ry="6"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="triangle" title="Triangle">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M12 3 L21 20 L3 20 Z"/>
+                                            </svg>
+                                        </button>
+                                        <button class="shapes-grid-item" data-tool="polygon" title="Polygon">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M12 2 L15 8 L22 9 L17 14 L18 21 L12 18 L6 21 L7 14 L2 9 L9 8 Z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-group" style="display: none;">
+                            <select id="drawingTool">
+                                <option value="brush" selected>Brush</option>
+                                <option value="pen">Pen</option>
+                                <option value="eraser">Eraser</option>
+                                <option value="line">Line</option>
+                                <option value="arrow">Arrow</option>
+                                <option value="rectangle">Rectangle</option>
+                                <option value="circle">Circle</option>
+                            </select>
+                        </div>
+
+                        <div class="setting-group" id="fillShapeGroup" style="display: none;">
+                            <label>
+                                <input type="checkbox" id="fillShape"> Fill shapes
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Brush Properties Section -->
+                    <div class="settings-section">
+                        <h4 class="section-title">Brush Properties</h4>
+                        
+                        <div class="setting-group">
+                            <label for="brushSize">Size</label>
+                            <div class="scale-control">
+                                <input type="range" id="brushSize" min="1" max="50" value="5">
+                                <input type="number" id="brushSizeInput" min="1" max="50" value="5" class="scale-input">
+                            </div>
+                        </div>
+
+                        <div class="setting-group">
+                            <label for="brushSmoothing">Smoothing</label>
+                            <div class="scale-control">
+                                <input type="range" id="brushSmoothing" min="0" max="100" value="50">
+                                <input type="number" id="brushSmoothingInput" min="0" max="100" value="50" class="scale-input">
+                            </div>
+                        </div>
+
+                        <div class="setting-group">
+                            <label for="brushColor">Color</label>
+                            <div style="position: relative; display: inline-block; width: 100%;">
+                                <input type="color" id="brushColor" value="#000000">
+                                <button type="button" class="color-picker-close" onclick="document.getElementById('brushColor').blur()" title="Close color picker">×</button>
+                            </div>
+                        </div>
+
+                        <div class="setting-group" id="fillColorGroup" style="display: none;">
+                            <label for="fillColor">Fill Color</label>
+                            <div style="position: relative; display: inline-block; width: 100%;">
+                                <input type="color" id="fillColor" value="#000000">
+                                <button type="button" class="color-picker-close" onclick="document.getElementById('fillColor').blur()" title="Close color picker">×</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions Section -->
+                    <div class="settings-section">
+                        <h4 class="section-title">Actions</h4>
+                        
+                        <div class="setting-group">
+                            <div class="drawing-undo-redo">
+                                <button id="undoDrawing" class="btn btn-secondary btn-full" title="Undo">↶ Undo</button>
+                                <button id="redoDrawing" class="btn btn-secondary btn-full" title="Redo">↷ Redo</button>
+                            </div>
+                        </div>
+
+                        <div class="setting-group">
+                            <button id="clearPageDrawing" class="btn btn-secondary btn-full" style="margin-bottom: 8px;">Clear Current Page</button>
+                            <button id="clearDrawing" class="btn btn-secondary btn-full">Clear All Drawings</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Storyboard Workspace -->
+            <div id="workspaceStoryboard" class="workspace-content active">
+                <div id="storyboardContainer" class="storyboard-container">
+                    <div class="empty-state">
+                        <p>Create a new project or open an existing one to get started.</p>
+                        <p>Import images from a folder to begin creating your storyboard.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shot List Workspace -->
+            <div id="workspaceShotList" class="workspace-content">
+                <div class="shotlist-container" style="padding: 20px; height: 100%; display: flex; flex-direction: column;">
+                    <!-- Shot List Toolbar -->
+                    <div class="shotlist-toolbar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #444;">
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <h2 style="margin: 0; font-size: 20px; font-weight: 600; color: #ccc;">Shot List</h2>
+                            <span id="shotListCount" class="shot-count-badge" style="background: #007acc; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">0 shots</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <div class="shotlist-zoom-controls" style="display: flex; align-items: center; gap: 4px; padding: 4px; background: #252526; border: 1px solid #444; border-radius: 4px;">
+                                <button id="shotListZoomOut" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" title="Zoom Out">
+                                    <i data-lucide="zoom-out" style="width: 14px; height: 14px;"></i>
+                                </button>
+                                <input type="number" id="shotListZoomLevel" value="100" min="50" max="200" step="10" style="width: 60px; padding: 4px 8px; background: #1e1e1e; border: 1px solid #444; border-radius: 4px; color: #ccc; text-align: center; font-size: 11px;">
+                                <span style="color: #888; font-size: 11px;">%</span>
+                                <button id="shotListZoomIn" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" title="Zoom In">
+                                    <i data-lucide="zoom-in" style="width: 14px; height: 14px;"></i>
+                                </button>
+                            </div>
+                            <button id="shotListSettingsBtn" class="btn btn-secondary" style="display: flex; align-items: center; gap: 8px;">
+                                <i data-lucide="settings"></i>
+                                <span>Settings</span>
+                            </button>
+                            <button id="addShotBtn" class="btn btn-primary" style="display: flex; align-items: center; gap: 8px;">
+                                <i data-lucide="plus"></i>
+                                <span>Add Shot</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Shot List Table -->
+                    <div class="shotlist-table-container" style="flex: 1; overflow: auto; background: #1e1e1e; border: 1px solid #444; border-radius: 4px; position: relative;">
+                        <div style="overflow-x: auto; overflow-y: auto; max-height: 100%;">
+                            <table id="shotListTable" class="shotlist-table" style="width: 100%; border-collapse: collapse; min-width: 2000px;">
+                            <thead id="shotListTableHead" style="background: #252526; position: sticky; top: 0; z-index: 10;">
+                                <tr>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #ccc; border-bottom: 2px solid #444; min-width: 60px;">Scene</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #ccc; border-bottom: 2px solid #444; min-width: 60px;">Shot</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #ccc; border-bottom: 2px solid #444; min-width: 80px;">Frames</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #ccc; border-bottom: 2px solid #444; min-width: 200px;">Description</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #ccc; border-bottom: 2px solid #444; min-width: 100px;">Duration</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #ccc; border-bottom: 2px solid #444; min-width: 120px;">Camera Angle</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #ccc; border-bottom: 2px solid #444; min-width: 120px;">Camera Movement</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #ccc; border-bottom: 2px solid #444; min-width: 100px;">Camera Lens</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #ccc; border-bottom: 2px solid #444; min-width: 100px;">Distance</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #ccc; border-bottom: 2px solid #444; min-width: 100px;">Type</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #ccc; border-bottom: 2px solid #444; min-width: 150px;">Location</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #ccc; border-bottom: 2px solid #444; min-width: 120px;">Characters</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #ccc; border-bottom: 2px solid #444; min-width: 100px;">Setup Time</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #ccc; border-bottom: 2px solid #444; min-width: 100px;">Predicted Takes</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #ccc; border-bottom: 2px solid #444; min-width: 100px;">Status</th>
+                                    <th style="padding: 12px; text-align: center; font-weight: 600; color: #ccc; border-bottom: 2px solid #444; min-width: 80px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="shotListTableBody" style="background: #1e1e1e;">
+                                <!-- Shot rows will be inserted here -->
+                            </tbody>
+                        </table>
+                        </div>
+                        <div id="shotListEmpty" class="shotlist-empty" style="display: none; padding: 60px 20px; text-align: center; color: #888;">
+                            <i data-lucide="list-checks" style="width: 48px; height: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
+                            <p style="margin: 0; font-size: 14px;">No shots in list. Add shots from the storyboard or create new ones manually.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Shot List Summary -->
+                    <div id="shotListSummary" class="shotlist-summary" style="margin-top: 20px; padding: 16px; background: #252526; border: 1px solid #444; border-radius: 4px; display: none;">
+                        <h3 style="margin: 0 0 12px 0; font-size: 16px; font-weight: 600; color: #ccc;">Summary</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                            <div>
+                                <div style="color: #888; font-size: 12px; margin-bottom: 4px;">Total Shots</div>
+                                <div id="summaryTotalShots" style="color: #ccc; font-size: 18px; font-weight: 600;">0</div>
+                            </div>
+                            <div>
+                                <div style="color: #888; font-size: 12px; margin-bottom: 4px;">Total Setup Time</div>
+                                <div id="summaryTotalSetupTime" style="color: #ccc; font-size: 18px; font-weight: 600;">0 min</div>
+                            </div>
+                            <div>
+                                <div style="color: #888; font-size: 12px; margin-bottom: 4px;">Total Shot Duration</div>
+                                <div id="summaryTotalDuration" style="color: #ccc; font-size: 18px; font-weight: 600;">0 frames (0.0s)</div>
+                            </div>
+                            <div>
+                                <div style="color: #888; font-size: 12px; margin-bottom: 4px;">Expected Production Time</div>
+                                <div id="summaryExpectedTime" style="color: #007acc; font-size: 18px; font-weight: 600;">0 min</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shot Edit Modal -->
+            <div id="shotEditModal" class="modal">
+                <div class="modal-content" style="max-width: 800px; max-height: 90vh; display: flex; flex-direction: column;">
+                    <div class="modal-header">
+                        <h2 id="shotEditModalTitle">Edit Shot</h2>
+                        <button class="modal-close" type="button">&times;</button>
+                    </div>
+                    <div class="modal-body" style="overflow-y: auto; flex: 1; min-height: 0;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <!-- Left Column -->
+                            <div style="display: flex; flex-direction: column; gap: 16px;">
+                                <div class="setting-group">
+                                    <label>Scene Number:</label>
+                                    <input type="text" id="shotEditScene" placeholder="e.g., 1, 2, 3">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Shot Number:</label>
+                                    <input type="text" id="shotEditShot" placeholder="e.g., 1, 2, 3">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Description:</label>
+                                    <textarea id="shotEditDescription" rows="3" placeholder="Shot description..." style="width: 100%; padding: 8px; background: #252526; border: 1px solid #444; border-radius: 4px; color: #ccc; font-family: inherit; resize: vertical;"></textarea>
+                                </div>
+                                <div class="setting-group">
+                                    <label>Duration:</label>
+                                    <div style="display: flex; gap: 8px; align-items: center;">
+                                        <input type="number" id="shotEditDuration" placeholder="0" min="0" step="1" style="flex: 1; padding: 8px; background: #252526; border: 1px solid #444; border-radius: 4px; color: #ccc;">
+                                        <span id="shotEditDurationUnit" style="color: #888; min-width: 60px;">frames</span>
+                                        <button id="shotEditDurationToggle" class="btn btn-secondary" style="padding: 8px 12px; white-space: nowrap;">Switch to Seconds</button>
+                                    </div>
+                                </div>
+                                <div class="setting-group">
+                                    <label>Camera Angle:</label>
+                                    <div style="display: flex; gap: 8px;">
+                                        <select id="shotEditCameraAngle" style="flex: 1; padding: 8px; background: #252526; border: 1px solid #444; border-radius: 4px; color: #ccc;">
+                                            <option value="">Select...</option>
+                                            <option value="Eye Level">Eye Level</option>
+                                            <option value="High Angle">High Angle</option>
+                                            <option value="Low Angle">Low Angle</option>
+                                            <option value="Bird's Eye">Bird's Eye</option>
+                                            <option value="Dutch Angle">Dutch Angle</option>
+                                            <option value="Overhead">Overhead</option>
+                                            <option value="custom">Custom...</option>
+                                        </select>
+                                        <input type="text" id="shotEditCameraAngleCustom" placeholder="Custom..." style="flex: 1; padding: 8px; background: #252526; border: 1px solid #444; border-radius: 4px; color: #ccc; display: none;">
+                                    </div>
+                                </div>
+                                <div class="setting-group">
+                                    <label>Camera Movement:</label>
+                                    <div style="display: flex; gap: 8px;">
+                                        <select id="shotEditCameraMovement" style="flex: 1; padding: 8px; background: #252526; border: 1px solid #444; border-radius: 4px; color: #ccc;">
+                                            <option value="">Select...</option>
+                                            <option value="Static">Static</option>
+                                            <option value="Pan">Pan</option>
+                                            <option value="Tilt">Tilt</option>
+                                            <option value="Dolly">Dolly</option>
+                                            <option value="Track">Track</option>
+                                            <option value="Crane">Crane</option>
+                                            <option value="Zoom">Zoom</option>
+                                            <option value="Handheld">Handheld</option>
+                                            <option value="custom">Custom...</option>
+                                        </select>
+                                        <input type="text" id="shotEditCameraMovementCustom" placeholder="Custom..." style="flex: 1; padding: 8px; background: #252526; border: 1px solid #444; border-radius: 4px; color: #ccc; display: none;">
+                                    </div>
+                                </div>
+                                <div class="setting-group">
+                                    <label>Camera Lens:</label>
+                                    <div style="display: flex; gap: 8px;">
+                                        <select id="shotEditCameraLens" style="flex: 1; padding: 8px; background: #252526; border: 1px solid #444; border-radius: 4px; color: #ccc;">
+                                            <option value="">Select...</option>
+                                            <option value="Wide (14-24mm)">Wide (14-24mm)</option>
+                                            <option value="Standard (35-50mm)">Standard (35-50mm)</option>
+                                            <option value="Telephoto (85-200mm)">Telephoto (85-200mm)</option>
+                                            <option value="Macro">Macro</option>
+                                            <option value="custom">Custom...</option>
+                                        </select>
+                                        <input type="text" id="shotEditCameraLensCustom" placeholder="Custom..." style="flex: 1; padding: 8px; background: #252526; border: 1px solid #444; border-radius: 4px; color: #ccc; display: none;">
+                                    </div>
+                                </div>
+                                <div class="setting-group">
+                                    <label>Distance:</label>
+                                    <div style="display: flex; gap: 8px;">
+                                        <select id="shotEditDistance" style="flex: 1; padding: 8px; background: #252526; border: 1px solid #444; border-radius: 4px; color: #ccc;">
+                                            <option value="">Select...</option>
+                                            <option value="ECU">ECU (Extreme Close Up)</option>
+                                            <option value="CU">CU (Close Up)</option>
+                                            <option value="MCU">MCU (Medium Close Up)</option>
+                                            <option value="MS">MS (Medium Shot)</option>
+                                            <option value="MWS">MWS (Medium Wide Shot)</option>
+                                            <option value="WS">WS (Wide Shot)</option>
+                                            <option value="VWS">VWS (Very Wide Shot)</option>
+                                            <option value="EWS">EWS (Extreme Wide Shot)</option>
+                                            <option value="custom">Custom...</option>
+                                        </select>
+                                        <input type="text" id="shotEditDistanceCustom" placeholder="Custom..." style="flex: 1; padding: 8px; background: #252526; border: 1px solid #444; border-radius: 4px; color: #ccc; display: none;">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Right Column -->
+                            <div style="display: flex; flex-direction: column; gap: 16px;">
+                                <div class="setting-group">
+                                    <label>Location:</label>
+                                    <input type="text" id="shotEditLocation" placeholder="Location name...">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Characters:</label>
+                                    <input type="text" id="shotEditCharacters" placeholder="Character names...">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Setup Time (minutes):</label>
+                                    <input type="number" id="shotEditSetupTime" placeholder="0" min="0" step="1" style="width: 100%; padding: 8px; background: #252526; border: 1px solid #444; border-radius: 4px; color: #ccc;">
+                                    <small style="color: #999; font-size: 11px; display: block; margin-top: 4px;">Time needed to set up for this shot</small>
+                                </div>
+                                <div class="setting-group">
+                                    <label>Predicted Takes:</label>
+                                    <input type="number" id="shotEditPredictedTakes" placeholder="0" min="0" step="1">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Shot Type:</label>
+                                    <select id="shotEditShotType" style="width: 100%; padding: 8px; background: #252526; border: 1px solid #444; border-radius: 4px; color: #ccc;">
+                                        <option value="">Select...</option>
+                                        <option value="INT">INT (Interior)</option>
+                                        <option value="EXT">EXT (Exterior)</option>
+                                        <option value="INT/EXT">INT/EXT</option>
+                                        <option value="Day">Day</option>
+                                        <option value="Night">Night</option>
+                                        <option value="Day/Night">Day/Night</option>
+                                        <option value="custom">Custom...</option>
+                                    </select>
+                                    <input type="text" id="shotEditShotTypeCustom" placeholder="Custom..." style="width: 100%; padding: 8px; background: #252526; border: 1px solid #444; border-radius: 4px; color: #ccc; margin-top: 8px; display: none;">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Props:</label>
+                                    <input type="text" id="shotEditProps" placeholder="Props needed...">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Equipment:</label>
+                                    <input type="text" id="shotEditEquipment" placeholder="Equipment needed...">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Audio:</label>
+                                    <input type="text" id="shotEditAudio" placeholder="Audio requirements...">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Wardrobe:</label>
+                                    <input type="text" id="shotEditWardrobe" placeholder="Wardrobe requirements...">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Makeup:</label>
+                                    <input type="text" id="shotEditMakeup" placeholder="Makeup requirements...">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Status:</label>
+                                    <select id="shotEditStatus" style="width: 100%; padding: 8px; background: #252526; border: 1px solid #444; border-radius: 4px; color: #ccc;">
+                                        <option value="pending">Pending</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="shot">Shot</option>
+                                        <option value="cut">Cut</option>
+                                    </select>
+                                </div>
+                                <div class="setting-group">
+                                    <label>Special Notes:</label>
+                                    <textarea id="shotEditSpecialNotes" rows="3" placeholder="Additional notes..." style="width: 100%; padding: 8px; background: #252526; border: 1px solid #444; border-radius: 4px; color: #ccc; font-family: inherit; resize: vertical;"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-actions" style="padding: 16px 20px; border-top: 1px solid #444; display: flex; gap: 10px; justify-content: flex-end; flex-shrink: 0;">
+                        <button id="shotEditCancel" class="btn btn-secondary">Cancel</button>
+                        <button id="shotEditSave" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shot List Settings Modal -->
+            <div id="shotListSettingsModal" class="modal">
+                <div class="modal-content" style="max-width: 600px;">
+                    <div class="modal-header">
+                        <h2>Shot List Settings</h2>
+                        <button class="modal-close" type="button">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="setting-group">
+                            <label for="shotListFrameRate">Frame Rate (FPS):</label>
+                            <input type="number" id="shotListFrameRate" value="24" min="1" max="120" step="1" style="width: 100%; padding: 8px; background: #252526; border: 1px solid #444; border-radius: 4px; color: #ccc;">
+                            <small style="color: #999; font-size: 11px; display: block; margin-top: 4px;">Used for converting between frames and seconds in duration fields</small>
+                        </div>
+                        <div class="setting-group">
+                            <label for="shotListProductionMultiplier">Production Time Multiplier:</label>
+                            <input type="number" id="shotListProductionMultiplier" value="1.5" min="0.5" max="5" step="0.1" style="width: 100%; padding: 8px; background: #252526; border: 1px solid #444; border-radius: 4px; color: #ccc;">
+                            <small style="color: #999; font-size: 11px; display: block; margin-top: 4px;">Multiplier for expected production time calculation: (setup + duration) × takes × multiplier</small>
+                        </div>
+                        <div class="setting-group" style="margin-top: 24px;">
+                            <label>Custom Columns:</label>
+                            <div id="customColumnsList" style="margin-top: 8px;">
+                                <!-- Custom columns will be listed here -->
+                            </div>
+                            <button id="addCustomColumnBtn" class="btn btn-secondary" style="margin-top: 12px; width: 100%;">
+                                <i data-lucide="plus"></i>
+                                <span>Add Custom Column</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="modal-actions" style="padding: 16px 20px; border-top: 1px solid #444; display: flex; gap: 10px; justify-content: flex-end;">
+                        <button id="shotListSettingsCancel" class="btn btn-secondary">Cancel</button>
+                        <button id="shotListSettingsSave" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Previz Workspace -->
+            <div id="workspacePreviz" class="workspace-content">
+                <div class="previz-container" style="display: flex; height: 100%; padding: 0; gap: 0; overflow: hidden;">
+                    <!-- File Manager Panel (Left) -->
+                    <div id="previzFilePanel" class="previz-file-panel" style="width: 250px; background: #1e1e1e; border-right: 1px solid #444; display: flex; flex-direction: column; flex-shrink: 0;">
+                        <div style="padding: 12px; border-bottom: 1px solid #444;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                                <h3 style="margin: 0; color: #ccc; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                                    <span>Project Files</span>
+                                    <button id="previzProjectFileSettingsBtn" type="button" class="btn btn-secondary" style="padding: 2px 6px; font-size: 10px;" title="Project File Settings">
+                                        <i data-lucide="settings" style="width: 12px; height: 12px;"></i>
+                                    </button>
+                                </h3>
+                                <button id="previzToggleFilePanel" type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" title="Hide Panel">
+                                    <i data-lucide="chevron-left" style="width: 12px; height: 12px;"></i>
+                                </button>
+                            </div>
+                            <div style="color: #888; font-size: 10px; line-height: 1.4;">
+                                Supported: Images (JPG, PNG, WebP), Audio (MP3, WAV, OGG)
+                            </div>
+                        </div>
+                        <div style="padding: 12px; border-bottom: 1px solid #444; display: flex; flex-direction: column; gap: 8px;">
+                            <button id="previzImportAudioBtn" class="btn btn-primary" style="width: 100%; padding: 8px; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <i data-lucide="upload" style="width: 14px; height: 14px;"></i>
+                                <span>Import Audio</span>
+                            </button>
+                            <button id="previzImportImageBtn" class="btn btn-primary" style="width: 100%; padding: 8px; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <i data-lucide="upload" style="width: 14px; height: 14px;"></i>
+                                <span>Import Image</span>
+                            </button>
+                        </div>
+                        <div id="previzFileList" style="flex: 1; overflow-y: auto; padding: 8px;">
+                            <div style="color: #888; font-size: 12px; padding: 20px; text-align: center;">No audio files imported</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Main Content Area -->
+                    <div style="flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; position: relative;">
+                        <!-- File Panel Toggle Button (when panel is hidden) - Top Left -->
+                        <button id="previzShowFilePanelBtn" type="button" class="btn btn-secondary" style="display: none; position: absolute; left: 0; top: 0; z-index: 100; padding: 8px 4px; border-radius: 0 0 4px 0; background: #252526; border: 1px solid #444; border-left: none; border-top: none; box-shadow: 2px 2px 4px rgba(0,0,0,0.3);" title="Show Project Files">
+                            <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+                        </button>
+                        
+                        <!-- Video Preview Area -->
+                        <div id="previzVideoPreview" class="previz-video-preview" style="flex: 1; min-height: 0; background: #000; border-bottom: 1px solid #444; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
+                            <div class="previz-placeholder" style="color: #888; font-size: 14px;">No frames in timeline</div>
+                        </div>
+
+                    <!-- Playback Controls -->
+                    <div class="previz-controls" style="display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: #252526; border: 1px solid #444; border-radius: 4px; margin-top: 8px;">
+                        <!-- Timeline Tools (Left) -->
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <button id="previzUndoBtn" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" title="Undo">
+                                <i data-lucide="undo" style="width: 12px; height: 12px;"></i>
+                            </button>
+                            <button id="previzRedoBtn" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" title="Redo">
+                                <i data-lucide="redo" style="width: 12px; height: 12px;"></i>
+                            </button>
+                            <div style="width: 1px; height: 20px; background: #444; margin: 0 4px;"></div>
+                            <button id="previzSnapToggle" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" title="Toggle Snapping">
+                                <i data-lucide="magnet" style="width: 12px; height: 12px;"></i>
+                                <span style="margin-left: 4px; font-size: 11px;">Snap</span>
+                            </button>
+                            <button id="previzZoomOutBtn" class="btn btn-secondary" style="padding: 4px 8px;" title="Zoom Out">
+                                <i data-lucide="zoom-out" style="width: 12px; height: 12px;"></i>
+                            </button>
+                            <button id="previzZoomInBtn" class="btn btn-secondary" style="padding: 4px 8px;" title="Zoom In">
+                                <i data-lucide="zoom-in" style="width: 12px; height: 12px;"></i>
+                            </button>
+                            <button id="previzZoomFitBtn" class="btn btn-secondary" style="padding: 4px 8px;" title="Fit to Screen">
+                                <i data-lucide="maximize" style="width: 12px; height: 12px;"></i>
+                            </button>
+                        </div>
+                        
+                        <div style="width: 1px; height: 20px; background: #444; margin: 0 4px;"></div>
+                        
+                        <!-- Playback Controls (Center) -->
+                        <div style="display: flex; align-items: center; gap: 6px; flex: 1; justify-content: center;">
+                            <button id="previzPlayBtn" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; font-size: 11px;">
+                                <i data-lucide="play" style="width: 12px; height: 12px;"></i>
+                                <span style="font-size: 11px;">Play</span>
+                            </button>
+                            <button id="previzPauseBtn" class="btn btn-secondary" style="display: none; align-items: center; gap: 4px; padding: 4px 10px; font-size: 11px;">
+                                <i data-lucide="pause" style="width: 12px; height: 12px;"></i>
+                                <span style="font-size: 11px;">Pause</span>
+                            </button>
+                            <button id="previzStopBtn" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; font-size: 11px;">
+                                <i data-lucide="square" style="width: 12px; height: 12px;"></i>
+                                <span style="font-size: 11px;">Stop</span>
+                            </button>
+                            <button id="previzStepBackBtn" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; font-size: 11px;" title="Step Backward">
+                                <i data-lucide="skip-back" style="width: 12px; height: 12px;"></i>
+                            </button>
+                            <button id="previzStepForwardBtn" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; font-size: 11px;" title="Step Forward">
+                                <i data-lucide="skip-forward" style="width: 12px; height: 12px;"></i>
+                            </button>
+                            <button id="previzLoopBtn" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; font-size: 11px;" title="Toggle Loop">
+                                <i data-lucide="repeat" style="width: 12px; height: 12px;"></i>
+                            </button>
+                            <div style="width: 1px; height: 20px; background: #444; margin: 0 4px;"></div>
+                            <div style="display: flex; align-items: center; gap: 6px; color: #ccc; font-family: monospace; font-size: 12px;">
+                                <span style="font-size: 11px;">Timecode:</span>
+                                <span id="previzTimecode" style="color: #007acc; font-weight: 600; font-size: 12px;">00:00:00:00</span>
+                            </div>
+                            <div style="width: 1px; height: 20px; background: #444; margin: 0 4px;"></div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="volume-2" style="width: 12px; height: 12px; color: #ccc;"></i>
+                                <input type="range" id="previzAudioVolume" min="0" max="100" value="100" style="width: 80px; height: 4px;" title="Audio Volume">
+                                <span id="previzVolumeDisplay" style="font-size: 11px; color: #ccc; min-width: 30px;">100%</span>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <!-- Resize Handle -->
+                    <div id="previzResizeHandle" style="height: 4px; background: #444; cursor: ns-resize; margin: 0; border-radius: 0; position: relative; flex-shrink: 0;">
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40px; height: 2px; background: #666; border-radius: 1px;"></div>
+                    </div>
+
+                    <!-- Timeline Section -->
+                    <div style="flex: 1; min-height: 150px; display: flex; flex-direction: column; overflow: hidden;">
+                        <!-- Timeline Controls Bar -->
+                        <div style="padding: 8px; background: #252526; border-bottom: 1px solid #444; display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                            <button id="previzAddVideoTrackBtn" class="btn btn-secondary" style="padding: 4px 10px; font-size: 11px;" title="Add Video Track">
+                                <i data-lucide="video" style="width: 12px; height: 12px;"></i>
+                                <span style="margin-left: 4px; font-size: 11px;">Add Video Track</span>
+                            </button>
+                            <button id="previzAddAudioTrackBtn" class="btn btn-secondary" style="padding: 4px 10px; font-size: 11px;" title="Add Audio Track">
+                                <i data-lucide="volume-2" style="width: 12px; height: 12px;"></i>
+                                <span style="margin-left: 4px; font-size: 11px;">Add Audio Track</span>
+                            </button>
+                            <div style="flex: 1;"></div>
+                            <button id="previzToggleTimeDisplay" class="btn btn-secondary" style="padding: 4px 10px; font-size: 11px;" title="Toggle Time Display">
+                                <i data-lucide="clock" style="width: 12px; height: 12px;"></i>
+                                <span style="margin-left: 4px; font-size: 11px;">Timecode</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Timeline -->
+                        <div id="previzTimeline" class="previz-timeline" style="flex: 1; min-height: 0; background: #1e1e1e; overflow: hidden; display: flex; flex-direction: column;">
+                            <!-- Timeline will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Image Settings Modal -->
+    <div id="imageSettingsModal" class="modal">
+        <div class="modal-content" style="max-width: 700px; max-height: 90vh; display: flex; flex-direction: column;">
+            <div class="modal-header">
+                <h2>Image Settings</h2>
+                <button class="modal-close" type="button">&times;</button>
+            </div>
+            <div class="modal-body" style="display: flex; flex-direction: column; gap: 16px; overflow-y: auto; flex: 1; min-height: 0;">
+                <!-- Image Preview at Top -->
+                <div style="width: 100%; display: flex; flex-direction: column; flex-shrink: 0;">
+                    <label style="margin-bottom: 8px; font-weight: 600; color: #ccc;">Preview:</label>
+                    <div id="imageSettingsPreview" style="width: 100%; height: 200px; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+                        <img id="imageSettingsPreviewImg" src="" alt="Preview" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                    </div>
+                    <small style="color: #999; font-size: 11px; margin-top: 4px;">Shows the image with any edits applied</small>
+                </div>
+                
+                <!-- Settings Below Preview -->
+                <div style="display: flex; flex-direction: column; gap: 12px; flex-shrink: 0;">
+                    <!-- Scene, Shot, Frame in a row -->
+                    <div style="display: flex; gap: 12px;">
+                        <div class="setting-group" style="flex: 1; margin-bottom: 0;">
+                            <label for="imageSettingsScene">Scene Number:</label>
+                            <input type="text" id="imageSettingsScene" placeholder="e.g., 1, 2, 3">
+                        </div>
+                        <div class="setting-group" style="flex: 1; margin-bottom: 0;">
+                            <label for="imageSettingsShot">Shot Number:</label>
+                            <input type="text" id="imageSettingsShot" placeholder="e.g., 1, 2, 3">
+                        </div>
+                        <div class="setting-group" style="flex: 1; margin-bottom: 0;">
+                            <label for="imageSettingsFrame">Frame Number:</label>
+                            <input type="text" id="imageSettingsFrame" placeholder="Auto-filled from filename">
+                        </div>
+                    </div>
+                    <div class="setting-group">
+                        <label for="imageSettingsFilePath">File Path:</label>
+                        <input type="text" id="imageSettingsFilePath" placeholder="Image file path" readonly style="background: #2a2a2a; cursor: not-allowed;">
+                        <small style="color: #999; font-size: 11px; display: block; margin-top: 4px;">Current file path (read-only)</small>
+                    </div>
+                    <div class="setting-group">
+                        <label for="imageSettingsReplaceFile">Replace Image:</label>
+                        <input type="file" id="imageSettingsReplaceFile" accept="image/*" style="width: 100%; padding: 8px; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; color: #ccc;">
+                        <small style="color: #999; font-size: 11px; display: block; margin-top: 4px;">Select a new image file to replace the current one</small>
+                    </div>
+                    <div class="setting-group">
+                        <label>Image Editing:</label>
+                        <div style="display: flex; gap: 10px; margin-top: 8px;">
+                            <button id="imageSettingsEdit" class="btn btn-primary" style="flex: 1;">Edit Image</button>
+                            <button id="imageSettingsResetEdits" class="btn btn-secondary" style="flex: 1; display: none;">Reset Edits</button>
+                        </div>
+                        <small style="color: #999; font-size: 11px; display: block; margin-top: 4px;">Edit the image using the drawing canvas. Edits are saved as a separate layer.</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons at Bottom -->
+            <div class="modal-actions" style="margin-top: 0; padding: 16px 20px; border-top: 1px solid #444; display: flex; gap: 10px; justify-content: flex-end; flex-shrink: 0;">
+                <button id="imageSettingsRemove" class="btn btn-secondary" style="background: #c53030; border-color: #c53030;">Remove Image</button>
+                <button id="imageSettingsSave" class="btn btn-primary">Save</button>
+                <button id="imageSettingsCancel" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Image Choice Modal -->
+    <div id="addImageChoiceModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Add Image</h2>
+                <button class="modal-close" type="button">&times;</button>
+            </div>
+            <div class="modal-body" style="text-align: center; padding: 40px 20px;">
+                <p style="margin-bottom: 30px; color: #ccc; font-size: 16px;">How would you like to add an image?</p>
+                <div style="display: flex; gap: 20px; justify-content: center;">
+                    <button id="createDrawingBtn" class="btn btn-primary" style="flex: 1; padding: 20px; font-size: 16px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                        <i data-lucide="pencil" style="width: 32px; height: 32px;"></i>
+                        <span>Create Drawing</span>
+                    </button>
+                    <button id="uploadImageBtn" class="btn btn-secondary" style="flex: 1; padding: 20px; font-size: 16px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                        <i data-lucide="upload" style="width: 32px; height: 32px;"></i>
+                        <span>Upload Image</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Image Modal (Upload) -->
+    <div id="addImageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Image</h2>
+                <button class="modal-close" type="button">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label for="addImageFile">Select Image:</label>
+                    <input type="file" id="addImageFile" accept="image/*">
+                </div>
+                <div class="setting-group">
+                    <label for="addImageScene">Scene Number:</label>
+                    <input type="text" id="addImageScene" placeholder="e.g., 1, 2, 3">
+                </div>
+                <div class="setting-group">
+                    <label for="addImageShot">Shot Number:</label>
+                    <input type="text" id="addImageShot" placeholder="e.g., 1, 2, 3">
+                </div>
+                <div class="setting-group">
+                    <label for="addImageFrame">Frame Number:</label>
+                    <input type="text" id="addImageFrame" placeholder="e.g., 1, 2, 3">
+                </div>
+                <div class="modal-actions">
+                    <button id="addImageSave" class="btn btn-primary">Add</button>
+                    <button id="addImageCancel" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Drawing Canvas Modal -->
+    <div id="drawingCanvasModal" class="modal" style="z-index: 10000;">
+        <div class="modal-content" style="max-width: 100vw; max-height: 100vh; width: 100vw; height: 100vh; display: flex; flex-direction: column; border-radius: 0; margin: 0; padding: 0;">
+            <!-- Top Bar -->
+            <div style="background: #2a2a2a; border-bottom: 1px solid #444; padding: 8px 15px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
+                <h2 style="margin: 0; color: #ccc; font-size: 16px;">Create Drawing</h2>
+                <button class="modal-close" type="button" id="drawingCanvasClose" style="background: transparent; border: none; color: #ccc; font-size: 24px; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">&times;</button>
+            </div>
+            
+            <!-- Main Layout: Tools Left | Canvas Center | Layers Right -->
+            <div style="flex: 1; display: flex; overflow: hidden;">
+                <!-- Left Tools Panel -->
+                <div id="drawingToolsPanel" style="width: 60px; background: #252526; border-right: 1px solid #444; display: flex; flex-direction: column; align-items: center; padding: 10px 5px; gap: 5px; flex-shrink: 0;">
+                    <button id="drawingToolSelect" class="drawing-tool-btn active" title="Select/Move">
+                        <i data-lucide="move"></i>
+                    </button>
+                    <div style="width: 100%; height: 1px; background: #444; margin: 5px 0;"></div>
+                    <button id="drawingToolBrush" class="drawing-tool-btn" title="Brush">
+                        <i data-lucide="paintbrush"></i>
+                    </button>
+                    <button id="drawingToolPen" class="drawing-tool-btn" title="Pen">
+                        <i data-lucide="pen-tool"></i>
+                    </button>
+                    <button id="drawingToolEraser" class="drawing-tool-btn" title="Eraser">
+                        <i data-lucide="eraser"></i>
+                    </button>
+                    <button id="drawingToolPaintBucket" class="drawing-tool-btn" title="Paint Bucket">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
+                            <path d="M19 11l-7-7-7 7v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8z"/>
+                            <path d="M12 4v16"/>
+                            <path d="M8 11h8"/>
+                        </svg>
+                    </button>
+                    <div style="width: 100%; height: 1px; background: #444; margin: 5px 0;"></div>
+                    <button id="drawingToolShapes" class="drawing-tool-btn" title="Shapes">
+                        <i data-lucide="shapes"></i>
+                    </button>
+                    <div style="width: 100%; height: 1px; background: #444; margin: 5px 0;"></div>
+                    <button id="drawingToolText" class="drawing-tool-btn" title="Text">
+                        <i data-lucide="type"></i>
+                    </button>
+                    <button id="drawingImportImage" class="drawing-tool-btn" title="Import Image">
+                        <i data-lucide="image"></i>
+                    </button>
+                    <div style="width: 100%; height: 1px; background: #444; margin: 5px 0;"></div>
+                    <button id="drawingZoomIn" class="drawing-tool-btn" title="Zoom In">
+                        <i data-lucide="zoom-in"></i>
+                    </button>
+                    <button id="drawingZoomOut" class="drawing-tool-btn" title="Zoom Out">
+                        <i data-lucide="zoom-out"></i>
+                    </button>
+                    <button id="drawingZoomFit" class="drawing-tool-btn" title="Fit to Screen">
+                        <i data-lucide="maximize"></i>
+                    </button>
+                    <button id="drawingZoomReset" class="drawing-tool-btn" title="Reset Zoom">
+                        <i data-lucide="minimize-2"></i>
+                    </button>
+                </div>
+                
+                <!-- Center: Settings Bar + Canvas -->
+                <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+                    <!-- Settings Bar (Top) -->
+                    <div id="drawingSettingsBar" style="background: #2a2a2a; border-bottom: 1px solid #444; padding: 8px 15px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; flex-shrink: 0;">
+                        <!-- Tool-specific settings will be shown here -->
+                        <div id="drawingToolSettings" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                            <!-- Default settings (brush/pen) -->
+                            <div id="drawingSettingsBrush" class="drawing-tool-settings" style="display: flex; align-items: center; gap: 15px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <label style="color: #ccc; font-size: 12px;">Color:</label>
+                                    <input type="color" id="drawingColorPicker" value="#000000" style="width: 40px; height: 30px; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <label style="color: #ccc; font-size: 12px;">Size:</label>
+                                    <input type="range" id="drawingBrushSize" min="1" max="50" value="5" style="width: 100px;">
+                                    <span id="drawingBrushSizeValue" style="color: #ccc; font-size: 12px; min-width: 30px;">5</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <label style="color: #ccc; font-size: 12px;">Opacity:</label>
+                                    <input type="range" id="drawingBrushOpacity" min="0" max="100" value="100" style="width: 100px;">
+                                    <span id="drawingBrushOpacityValue" style="color: #ccc; font-size: 12px; min-width: 30px;">100%</span>
+                                </div>
+                                <div id="drawingBrushSmoothingGroup" style="display: flex; align-items: center; gap: 10px;">
+                                    <label style="color: #ccc; font-size: 12px;">Smoothing:</label>
+                                    <input type="range" id="drawingBrushSmoothing" min="0" max="100" value="50" style="width: 100px;">
+                                    <span id="drawingBrushSmoothingValue" style="color: #ccc; font-size: 12px; min-width: 30px;">50</span>
+                                </div>
+                            </div>
+                            <div id="drawingSettingsPen" class="drawing-tool-settings" style="display: none; align-items: center; gap: 15px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <label style="color: #ccc; font-size: 12px;">Color:</label>
+                                    <input type="color" id="drawingPenColorPicker" value="#000000" style="width: 40px; height: 30px; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <label style="color: #ccc; font-size: 12px;">Size:</label>
+                                    <input type="range" id="drawingPenSize" min="1" max="50" value="5" style="width: 100px;">
+                                    <span id="drawingPenSizeValue" style="color: #ccc; font-size: 12px; min-width: 30px;">5</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Shape settings -->
+                            <div id="drawingSettingsShape" class="drawing-tool-settings" style="display: none; align-items: center; gap: 15px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <label style="color: #ccc; font-size: 12px;">Stroke:</label>
+                                    <input type="color" id="drawingShapeStroke" value="#000000" style="width: 40px; height: 30px; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <label style="color: #ccc; font-size: 12px;">Width:</label>
+                                    <input type="range" id="drawingShapeWidth" min="1" max="50" value="2" style="width: 100px;">
+                                    <span id="drawingShapeWidthValue" style="color: #ccc; font-size: 12px; min-width: 30px;">2</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <input type="checkbox" id="drawingShapeFill" style="width: auto; margin: 0;">
+                                    <label for="drawingShapeFill" style="color: #ccc; font-size: 12px; margin: 0; cursor: pointer;">Fill</label>
+                                </div>
+                                <div id="drawingShapeFillColorGroup" style="display: none; align-items: center; gap: 10px;">
+                                    <label style="color: #ccc; font-size: 12px;">Fill Color:</label>
+                                    <input type="color" id="drawingShapeFillColor" value="#000000" style="width: 40px; height: 30px; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
+                                </div>
+                                <div style="position: relative;">
+                                    <button id="drawingShapeMenuBtn" class="drawing-action-btn drawing-shape-menu-btn" title="Select Shape" style="position: relative;">
+                                        <i data-lucide="shapes"></i>
+                                        <span style="margin-left: 5px; font-size: 12px;">Shape</span>
+                                    </button>
+                                    <div id="drawingShapeMenu" style="display: none; position: absolute; top: 100%; left: 0; z-index: 10001; margin-top: 5px; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; padding: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); max-width: 300px; max-height: 500px; overflow-y: auto;">
+                                        <div id="drawingShapeGrid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                                            <!-- Shapes will be added here dynamically -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Text settings -->
+                            <div id="drawingSettingsText" class="drawing-tool-settings" style="display: none; align-items: center; gap: 15px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <label style="color: #ccc; font-size: 12px;">Font:</label>
+                                    <select id="drawingTextFont" style="padding: 5px; background: #3c3c3c; border: 1px solid #444; border-radius: 4px; color: #ccc;">
+                                        <option value="Arial">Arial</option>
+                                        <option value="Helvetica">Helvetica</option>
+                                        <option value="Times New Roman">Times New Roman</option>
+                                        <option value="Courier New">Courier New</option>
+                                        <option value="Verdana">Verdana</option>
+                                    </select>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <label style="color: #ccc; font-size: 12px;">Size:</label>
+                                    <input type="number" id="drawingTextSize" min="8" max="200" value="20" style="width: 60px; padding: 5px; background: #3c3c3c; border: 1px solid #444; border-radius: 4px; color: #ccc;">
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <label style="color: #ccc; font-size: 12px;">Color:</label>
+                                    <input type="color" id="drawingTextColor" value="#000000" style="width: 40px; height: 30px; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <button id="drawingTextBold" class="drawing-text-style-btn" title="Bold">B</button>
+                                    <button id="drawingTextItalic" class="drawing-text-style-btn" title="Italic">I</button>
+                                    <button id="drawingTextUnderline" class="drawing-text-style-btn" title="Underline">U</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Select tool settings -->
+                            <div id="drawingSettingsSelect" class="drawing-tool-settings" style="display: none; align-items: center; gap: 15px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <label style="color: #ccc; font-size: 12px;">Selection Mode:</label>
+                                    <select id="drawingSelectionMode" style="background: #2a2a2a; color: #ccc; border: 1px solid #444; border-radius: 4px; padding: 5px 10px; font-size: 12px; cursor: pointer;">
+                                        <option value="single">Single/Rectangle</option>
+                                        <option value="lasso">Lasso</option>
+                                    </select>
+                                </div>
+                                <button id="drawingFlipHorizontal" class="drawing-action-btn" title="Flip Horizontal">
+                                    <i data-lucide="flip-horizontal"></i>
+                                    <span style="margin-left: 5px; font-size: 12px;">Flip H</span>
+                                </button>
+                                <button id="drawingFlipVertical" class="drawing-action-btn" title="Flip Vertical">
+                                    <i data-lucide="flip-vertical"></i>
+                                    <span style="margin-left: 5px; font-size: 12px;">Flip V</span>
+                                </button>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <label style="color: #ccc; font-size: 12px;">Skew X:</label>
+                                    <input type="range" id="drawingSkewX" min="-10" max="10" step="0.1" value="0" style="width: 100px;">
+                                    <span id="drawingSkewXValue" style="color: #ccc; font-size: 12px; min-width: 30px;">0</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <label style="color: #ccc; font-size: 12px;">Skew Y:</label>
+                                    <input type="range" id="drawingSkewY" min="-10" max="10" step="0.1" value="0" style="width: 100px;">
+                                    <span id="drawingSkewYValue" style="color: #ccc; font-size: 12px; min-width: 30px;">0</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Paint bucket settings -->
+                            <div id="drawingSettingsPaintBucket" class="drawing-tool-settings" style="display: none; align-items: center; gap: 15px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <label style="color: #ccc; font-size: 12px;">Fill Color:</label>
+                                    <input type="color" id="drawingPaintBucketColor" value="#000000" style="width: 40px; height: 30px; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
+                                </div>
+                            </div>
+                            
+                            <!-- Custom shape settings -->
+                            <div id="drawingSettingsCustomShape" class="drawing-tool-settings" style="display: none; align-items: center; gap: 15px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <label style="color: #ccc; font-size: 12px;">Stroke:</label>
+                                    <input type="color" id="drawingCustomShapeStroke" value="#000000" style="width: 40px; height: 30px; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <label style="color: #ccc; font-size: 12px;">Width:</label>
+                                    <input type="range" id="drawingCustomShapeWidth" min="1" max="50" value="2" style="width: 100px;">
+                                    <span id="drawingCustomShapeWidthValue" style="color: #ccc; font-size: 12px; min-width: 30px;">2</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <input type="checkbox" id="drawingCustomShapeFill" style="width: auto; margin: 0;">
+                                    <label for="drawingCustomShapeFill" style="color: #ccc; font-size: 12px; margin: 0; cursor: pointer;">Fill</label>
+                                </div>
+                                <div id="drawingCustomShapeFillColorGroup" style="display: none; align-items: center; gap: 10px;">
+                                    <label style="color: #ccc; font-size: 12px;">Fill Color:</label>
+                                    <input type="color" id="drawingCustomShapeFillColor" value="#000000" style="width: 40px; height: 30px; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
+                                </div>
+                                <div style="position: relative;">
+                                    <button class="drawing-action-btn drawing-shape-menu-btn" title="Select Shape" style="position: relative;">
+                                        <i data-lucide="shapes"></i>
+                                        <span style="margin-left: 5px; font-size: 12px;">Shape</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-left: auto; display: flex; gap: 5px; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <label style="color: #ccc; font-size: 12px;">Aspect Ratio:</label>
+                                <select id="drawingAspectRatio" style="padding: 5px; background: #3c3c3c; border: 1px solid #444; border-radius: 4px; color: #ccc;">
+                                    <option value="page">Match Page</option>
+                                    <option value="16:9" selected>16:9</option>
+                                    <option value="21:9">21:9</option>
+                                    <option value="4:3">4:3</option>
+                                    <option value="1:1">1:1</option>
+                                    <option value="custom">Custom</option>
+                                </select>
+                            </div>
+                            <button id="drawingCrop" class="drawing-action-btn" title="Crop Canvas">
+                                <i data-lucide="crop"></i>
+                            </button>
+                            <button id="drawingUndo" class="drawing-action-btn" title="Undo">
+                                <i data-lucide="undo"></i>
+                            </button>
+                            <button id="drawingRedo" class="drawing-action-btn" title="Redo">
+                                <i data-lucide="redo"></i>
+                            </button>
+                            <button id="drawingClear" class="drawing-action-btn" title="Clear Canvas" style="color: #ef4444;">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Canvas Container with Checkerboard Background -->
+                    <div id="drawingCanvasContainer" style="flex: 1; overflow: hidden; position: relative; background-image: 
+                        repeating-linear-gradient(45deg, #d0d0d0 25%, transparent 25%, transparent 75%, #d0d0d0 75%, #d0d0d0),
+                        repeating-linear-gradient(45deg, #d0d0d0 25%, #e5e5e5 25%, #e5e5e5 75%, #d0d0d0 75%, #d0d0d0);
+                        background-position: 0 0, 10px 10px;
+                        background-size: 20px 20px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 20px;">
+                        <div id="drawingCanvasWrapper" style="position: relative; display: block; margin: 0 auto;"></div>
+                    </div>
+                    
+                    <!-- Bottom Controls -->
+                    <div style="background: #2a2a2a; border-top: 1px solid #444; padding: 15px; flex-shrink: 0;">
+                        <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                            <div class="setting-group" style="margin: 0; flex: 1; min-width: 200px;">
+                                <label for="drawingScene" style="margin-bottom: 5px;">Scene Number:</label>
+                                <input type="text" id="drawingScene" placeholder="e.g., 1, 2, 3" style="width: 100%;">
+                            </div>
+                            <div class="setting-group" style="margin: 0; flex: 1; min-width: 200px;">
+                                <label for="drawingShot" style="margin-bottom: 5px;">Shot Number:</label>
+                                <input type="text" id="drawingShot" placeholder="e.g., 1, 2, 3" style="width: 100%;">
+                            </div>
+                            <div class="setting-group" style="margin: 0; flex: 1; min-width: 200px;">
+                                <label for="drawingFrame" style="margin-bottom: 5px;">Frame Number:</label>
+                                <input type="text" id="drawingFrame" placeholder="e.g., 1, 2, 3" style="width: 100%;">
+                            </div>
+                            <div style="display: flex; gap: 10px; margin-left: auto;">
+                                <button id="drawingKeep" class="btn btn-primary">Keep</button>
+                                <button id="drawingKeepAndSave" class="btn btn-secondary">Keep & Save to Disk</button>
+                                <button id="drawingCancel" class="btn btn-secondary">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Layers Panel -->
+                <div id="drawingLayersPanel" style="width: 250px; background: #252526; border-left: 1px solid #444; display: flex; flex-direction: column; flex-shrink: 0;">
+                    <div style="padding: 10px; border-bottom: 1px solid #444;">
+                        <h3 style="margin: 0; color: #ccc; font-size: 14px; font-weight: 600;">Layers</h3>
+                    </div>
+                    <div id="drawingLayerSettingsBar" style="padding: 10px; border-bottom: 1px solid #444; background: #2a2a2a; display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label style="color: #ccc; font-size: 12px; min-width: 50px;">Opacity:</label>
+                            <input type="range" id="drawingLayerOpacity" min="0" max="100" value="100" style="flex: 1; height: 4px;">
+                            <span id="drawingLayerOpacityValue" style="color: #ccc; font-size: 12px; min-width: 35px;">100%</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label style="color: #ccc; font-size: 12px; min-width: 50px;">Blend:</label>
+                            <select id="drawingLayerBlendingMode" style="flex: 1; background: #3c3c3c; color: #ccc; border: 1px solid #444; border-radius: 4px; padding: 5px 10px; font-size: 12px; cursor: pointer;">
+                                <option value="normal">Normal</option>
+                                <option value="multiply">Multiply</option>
+                                <option value="screen">Screen</option>
+                                <option value="overlay">Overlay</option>
+                                <option value="darken">Darken</option>
+                                <option value="lighten">Lighten</option>
+                                <option value="color-dodge">Color Dodge</option>
+                                <option value="color-burn">Color Burn</option>
+                                <option value="hard-light">Hard Light</option>
+                                <option value="soft-light">Soft Light</option>
+                                <option value="difference">Difference</option>
+                                <option value="exclusion">Exclusion</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="drawingLayersList" style="flex: 1; overflow-y: auto; padding: 5px;">
+                        <!-- Layers will be added here dynamically -->
+                    </div>
+                    <div style="padding: 10px; border-top: 1px solid #444;">
+                        <button id="drawingAddLayer" class="btn btn-secondary" style="width: 100%; padding: 8px; font-size: 12px;">
+                            <i data-lucide="plus" style="width: 14px; height: 14px; margin-right: 5px;"></i>
+                            Add Layer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Layer Filter Dialog (Movable) -->
+    <div id="layerFilterDialog" style="display: none; position: fixed; z-index: 10003; background: #2a2a2a; border: 1px solid #444; border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); min-width: 300px; max-width: 400px;">
+        <div id="layerFilterDialogHeader" style="padding: 12px; border-bottom: 1px solid #444; cursor: move; display: flex; align-items: center; justify-content: space-between; background: #1e1e1e; border-radius: 8px 8px 0 0;">
+            <h3 style="margin: 0; color: #ccc; font-size: 14px; font-weight: 600;">Layer Filters</h3>
+            <button id="layerFilterDialogClose" style="background: none; border: none; color: #ccc; cursor: pointer; padding: 4px; font-size: 18px; line-height: 1;">&times;</button>
+        </div>
+        <div id="layerFilterDialogContent" style="padding: 15px; max-height: 500px; overflow-y: auto;">
+            <div style="margin-bottom: 15px;">
+                <label style="color: #ccc; font-size: 12px; display: block; margin-bottom: 8px;">Filter:</label>
+                <select id="layerFilterType" style="width: 100%; padding: 6px; background: #3c3c3c; border: 1px solid #555; border-radius: 4px; color: #ccc; font-size: 12px;">
+                    <option value="">Select Filter...</option>
+                    <option value="blur">Blur</option>
+                    <option value="brighten">Brighten</option>
+                    <option value="contrast">Contrast</option>
+                    <option value="emboss">Emboss</option>
+                    <option value="enhance">Enhance</option>
+                    <option value="grayscale">Grayscale</option>
+                    <option value="hue">Hue</option>
+                    <option value="invert">Invert</option>
+                    <option value="noise">Noise</option>
+                    <option value="pixelate">Pixelate</option>
+                    <option value="posterize">Posterize</option>
+                    <option value="rgb">RGB</option>
+                    <option value="saturate">Saturate</option>
+                    <option value="sepia">Sepia</option>
+                    <option value="sharpen">Sharpen</option>
+                    <option value="solarize">Solarize</option>
+                    <option value="threshold">Threshold</option>
+                </select>
+            </div>
+            <div id="layerFilterIntensityGroup" style="margin-bottom: 15px; display: none;">
+                <label style="color: #ccc; font-size: 12px; display: block; margin-bottom: 8px;">Intensity:</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="range" id="layerFilterIntensity" min="0" max="100" value="50" style="flex: 1;">
+                    <span id="layerFilterIntensityValue" style="color: #ccc; font-size: 12px; min-width: 40px;">50</span>
+                </div>
+            </div>
+            <button id="layerFilterAdd" class="btn btn-primary" style="width: 100%; padding: 8px; font-size: 12px; margin-bottom: 15px;">Add Filter</button>
+            <div id="layerFilterAppliedList" style="margin-top: 15px;">
+                <label style="color: #ccc; font-size: 12px; display: block; margin-bottom: 8px;">Applied Filters:</label>
+                <div id="layerFilterAppliedItems" style="display: flex; flex-direction: column; gap: 5px;">
+                    <!-- Applied filters will be listed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+    
+    <!-- Legacy toast (for backward compatibility) -->
+    <div id="toast" class="toast" style="display: none;">
+        <span id="toastMessage"></span>
+    </div>
+
+    <!-- Custom Dialog (for alert/confirm/prompt) -->
+    <!-- Image Import Modal -->
+    <div id="imageImportModal" class="modal">
+        <div class="modal-content image-import-modal">
+            <div class="modal-header">
+                <h2>Import Images</h2>
+                <span class="close" id="imageImportModalClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <!-- Structure Recognition Info -->
+                <div class="structure-info-section">
+                    <div class="structure-info-header">
+                        <div>
+                            <h3>Recognized File Structures</h3>
+                            <p class="info-text">The system can automatically recognize and organize images from various structures</p>
+                        </div>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="structure-examples-container" style="display: none;">
+                        <div class="structure-examples" id="structureExamples">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Path Selection -->
+                <div class="path-selection-section">
+                    <h3>Select Image Folder</h3>
+                    <div class="path-display">
+                        <input type="text" id="imageImportPath" readonly placeholder="No folder selected">
+                        <button id="browseImageFolder" class="btn btn-primary">Browse</button>
+                    </div>
+                    <input type="file" id="imageImportFileInput" webkitdirectory directory multiple accept="image/*" style="display: none;">
+                    
+                    <!-- Structure Recognition Toggle -->
+                    <div class="setting-group" style="margin-top: 15px;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="enableStructureRecognition" checked style="width: auto; margin: 0;">
+                            <span>Automatically recognize file structure and populate scene/shot/frame numbers</span>
+                        </label>
+                        <p style="color: #a0a0a0; font-size: 12px; margin-top: 5px; margin-left: 28px;">
+                            If disabled, images will be loaded without automatic numbering. You can add scene/shot/frame numbers manually in the storyboard.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Recognition Results -->
+                <div class="recognition-results" id="recognitionResults" style="display: none;">
+                    <h3>Structure Detected</h3>
+                    <div id="recognitionInfo"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="imageImportCancel" class="btn btn-secondary">Cancel</button>
+                <button id="imageImportLoad" class="btn btn-primary" disabled>Load Images</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="customDialog" class="custom-dialog">
+        <div class="custom-dialog-content">
+            <div class="custom-dialog-header">
+                <h3 id="customDialogTitle">Alert</h3>
+            </div>
+            <div class="custom-dialog-body">
+                <p id="customDialogMessage"></p>
+                <input type="text" id="customDialogInput" style="display: none;" placeholder="">
+            </div>
+            <div class="custom-dialog-actions">
+                <button id="customDialogCancel" class="btn btn-secondary" style="display: none;">Cancel</button>
+                <button id="customDialogNo" class="btn btn-secondary" style="display: none;">No</button>
+                <button id="customDialogYes" class="btn btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>About Storyboard Creator</h2>
+                <button class="modal-close" type="button">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 24px;">
+                <div style="margin-bottom: 20px;">
+                    <p style="color: #ccc; line-height: 1.6; margin-bottom: 12px;">
+                        <strong>Designed by Ali Al-Tobi</strong>
+                    </p>
+                    <p style="color: #999; line-height: 1.6; margin-bottom: 12px; font-style: italic;">
+                        This software is basically 75% vibecoded. You've been warned! 😅
+                    </p>
+                    <p style="color: #ccc; line-height: 1.6; margin-bottom: 12px;">
+                        <strong>Version:</strong> 1.0.0
+                    </p>
+                </div>
+                <div style="border-top: 1px solid #444; padding-top: 20px; margin-top: 20px;">
+                    <p style="color: #888; font-size: 12px; line-height: 1.6; margin-bottom: 8px;">
+                        <strong>Disclaimer:</strong>
+                    </p>
+                    <p style="color: #888; font-size: 12px; line-height: 1.6;">
+                        This is an open source project with not so great code written, so expect bugs. 
+                        Please take as much backup as you can, as we can't guarantee that this works perfectly. 
+                        We are not responsible for any issues arising from using this product.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-actions" style="padding: 16px 20px; border-top: 1px solid #444; display: flex; gap: 10px; justify-content: flex-end;">
+                <button id="aboutModalClose" class="btn btn-primary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Shot List PDF Dialog -->
+    <div id="exportShotListPDFModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2>Export Shot List PDF</h2>
+                <button class="modal-close" type="button">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 24px;">
+                <div class="setting-group" style="margin-bottom: 16px;">
+                    <label for="exportShotListProjectName" style="display: block; margin-bottom: 8px; color: #ccc;">Project Name:</label>
+                    <input type="text" id="exportShotListProjectName" style="width: 100%; padding: 8px; background: #252526; border: 1px solid #444; border-radius: 4px; color: #ccc;">
+                </div>
+                
+                <div class="setting-group" style="margin-bottom: 16px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="exportShotListIncludeCustomColumns" checked style="width: auto; margin: 0;">
+                        <span style="color: #ccc;">Include Custom Columns</span>
+                    </label>
+                </div>
+
+                <div class="setting-group" style="margin-bottom: 16px;">
+                    <label for="exportShotListBackgroundColor" style="display: block; margin-bottom: 8px; color: #ccc;">Background Color:</label>
+                    <div style="position: relative; display: inline-block;">
+                        <input type="color" id="exportShotListBackgroundColor" value="#ffffff" style="width: 60px; height: 40px; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
+                    </div>
+                </div>
+
+                <div class="setting-group" style="margin-bottom: 16px;">
+                    <label for="exportShotListTextColor" style="display: block; margin-bottom: 8px; color: #ccc;">Text Color:</label>
+                    <div style="position: relative; display: inline-block;">
+                        <input type="color" id="exportShotListTextColor" value="#000000" style="width: 60px; height: 40px; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
+                    </div>
+                </div>
+
+                <div class="setting-group" style="margin-bottom: 16px;">
+                    <label for="exportShotListSceneRowBackgroundColor" style="display: block; margin-bottom: 8px; color: #ccc;">Scene Summary Background Color:</label>
+                    <div style="position: relative; display: inline-block;">
+                        <input type="color" id="exportShotListSceneRowBackgroundColor" value="#f0f0f0" style="width: 60px; height: 40px; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
+                    </div>
+                </div>
+
+                <div class="setting-group" style="margin-bottom: 16px;">
+                    <label for="exportShotListSceneRowTextColor" style="display: block; margin-bottom: 8px; color: #ccc;">Scene Summary Text Color:</label>
+                    <div style="position: relative; display: inline-block;">
+                        <input type="color" id="exportShotListSceneRowTextColor" value="#505050" style="width: 60px; height: 40px; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions" style="padding: 16px 20px; border-top: 1px solid #444; display: flex; gap: 10px; justify-content: flex-end;">
+                <button id="exportShotListPDFCancel" class="btn btn-secondary">Cancel</button>
+                <button id="exportShotListPDFExport" class="btn btn-primary">Export</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Storyboard PDF Dialog -->
+    <div id="exportStoryboardPDFModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2>Export Storyboard PDF</h2>
+                <button class="modal-close" type="button">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 24px;">
+                <div class="setting-group" style="margin-bottom: 16px;">
+                    <label for="exportStoryboardProjectName" style="display: block; margin-bottom: 8px; color: #ccc;">Project Name (for filename):</label>
+                    <input type="text" id="exportStoryboardProjectName" style="width: 100%; padding: 8px; background: #252526; border: 1px solid #444; border-radius: 4px; color: #ccc;">
+                </div>
+
+                <div class="setting-group" style="margin-bottom: 16px;">
+                    <label for="exportStoryboardBackgroundColor" style="display: block; margin-bottom: 8px; color: #ccc;">Page Background Color (override):</label>
+                    <div style="position: relative; display: inline-block;">
+                        <input type="color" id="exportStoryboardBackgroundColor" style="width: 60px; height: 40px; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
+                    </div>
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 8px;">
+                        <input type="checkbox" id="exportStoryboardUseCustomBackground" style="width: auto; margin: 0;">
+                        <span style="color: #ccc; font-size: 12px;">Override project background color</span>
+                    </label>
+                </div>
+
+                <div class="setting-group" style="margin-bottom: 16px;">
+                    <label for="exportStoryboardCoverPageBackgroundColor" style="display: block; margin-bottom: 8px; color: #ccc;">Cover Page Background Color:</label>
+                    <div style="position: relative; display: inline-block;">
+                        <input type="color" id="exportStoryboardCoverPageBackgroundColor" style="width: 60px; height: 40px; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
+                    </div>
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 8px;">
+                        <input type="checkbox" id="exportStoryboardUseCustomCoverBackground" style="width: auto; margin: 0;">
+                        <span style="color: #ccc; font-size: 12px;">Use custom cover page background</span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-actions" style="padding: 16px 20px; border-top: 1px solid #444; display: flex; gap: 10px; justify-content: flex-end;">
+                <button id="exportStoryboardPDFCancel" class="btn btn-secondary">Cancel</button>
+                <button id="exportStoryboardPDFExport" class="btn btn-primary">Export</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="utils/imageStructureParser.js"></script>
+    <script src="utils/imageCompression.js"></script>
+    <script src="utils/zoom.js"></script>
+    <script src="ui/ModalController.js"></script>
+    <script src="ui/ImageSettingsController.js"></script>
+    <script src="services/StorageService.js"></script>
+    <script src="services/RenderService.js"></script>
+    <script src="managers/ImageManager.js"></script>
+    <script src="managers/UIManager.js"></script>
+    <script src="managers/PDFManager.js"></script>
+    <script src="managers/fileManager.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
