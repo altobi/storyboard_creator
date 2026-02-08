@@ -595,9 +595,6 @@ class ShotListController {
         if (!tbody || !thead) return;
 
         const shots = this.app.shotListManager.getAllShots();
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/8b3c9a05-4886-47b7-83c2-fd4e9c9af8ce',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ShotListController.js:597',message:'renderShotList - shots retrieved',data:{totalShots:shots.length,shotIds:shots.map(s=>s.id),shotScenes:shots.map(s=>`${s.sceneNumber}_${s.shotNumber}`)},timestamp:Date.now(),runId:'run2',hypothesisId:'F'})}).catch(()=>{});
-        // #endregion
 
         // Update count
         if (countBadge) {
@@ -635,21 +632,16 @@ class ShotListController {
         });
 
         // Render shots grouped by scene
-        let totalRowsRendered = 0;
         sortedScenes.forEach(([sceneNum, sceneShots]) => {
             sceneShots.forEach(shot => {
                 const row = this.createShotRow(shot);
                 tbody.appendChild(row);
-                totalRowsRendered++;
             });
-            
+
             // Add scene summary row
             const summaryRow = this.createSceneSummaryRow(sceneNum, sceneShots);
             tbody.appendChild(summaryRow);
         });
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/8b3c9a05-4886-47b7-83c2-fd4e9c9af8ce',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ShotListController.js:647',message:'renderShotList - rows rendered',data:{totalRowsRendered:totalRowsRendered,totalShots:shots.length,tableRowCount:tbody.children.length},timestamp:Date.now(),runId:'run2',hypothesisId:'F'})}).catch(()=>{});
-        // #endregion
 
         // Render overall summary
         this.renderSummary(shots);
@@ -1463,16 +1455,7 @@ class ShotListController {
         }
 
         const shots = this.app.shotListManager.getAllShots();
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/8b3c9a05-4886-47b7-83c2-fd4e9c9af8ce',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ShotListController.js:1457',message:'getAllShots result',data:{totalShots:shots.length,shotIds:shots.map(s=>s.id),shotScenes:shots.map(s=>`${s.sceneNumber}_${s.shotNumber}`)},timestamp:Date.now(),runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
-        console.log('[PDF Export] Total shots retrieved:', shots.length);
-        console.log('[PDF Export] Shots:', shots.map(s => ({ id: s.id, scene: s.sceneNumber, shot: s.shotNumber })));
-        // Log first shot's full structure for debugging
-        if (shots.length > 0) {
-            console.log('[PDF Export] First shot full data:', JSON.stringify(shots[0], null, 2));
-        }
-        
+
         if (shots.length === 0) {
             await this.app.customAlert('No shots to export. Please add shots to the shot list first.');
             return false;
@@ -1545,30 +1528,19 @@ class ShotListController {
 
             // Group shots by scene
             const sceneGroups = new Map();
-            let shotsProcessed = 0;
             shots.forEach(shot => {
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/8b3c9a05-4886-47b7-83c2-fd4e9c9af8ce',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ShotListController.js:1537',message:'Processing shot for grouping',data:{shotId:shot.id,sceneNumber:shot.sceneNumber,shotNumber:shot.shotNumber,index:shotsProcessed},timestamp:Date.now(),runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                // #endregion
                 const sceneNum = shot.sceneNumber || 'Unknown';
                 if (!sceneGroups.has(sceneNum)) {
                     sceneGroups.set(sceneNum, []);
                 }
                 sceneGroups.get(sceneNum).push(shot);
-                shotsProcessed++;
             });
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/8b3c9a05-4886-47b7-83c2-fd4e9c9af8ce',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ShotListController.js:1543',message:'After grouping',data:{totalShotsProcessed:shotsProcessed,sceneGroupsCount:sceneGroups.size,sceneGroups:Array.from(sceneGroups.entries()).map(([s,shots])=>({scene:s,count:shots.length,shotIds:shots.map(sh=>sh.id)}))},timestamp:Date.now(),runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-            // #endregion
-            console.log('[PDF Export] Scene groups:', Array.from(sceneGroups.entries()).map(([scene, shots]) => ({ scene, count: shots.length })));
 
             const sortedScenes = Array.from(sceneGroups.entries()).sort((a, b) => {
                 const numA = parseInt(a[0]) || 0;
                 const numB = parseInt(b[0]) || 0;
                 return numA - numB;
             });
-
-            console.log('[PDF Export] Sorted scenes:', sortedScenes.map(([scene, shots]) => ({ scene, count: shots.length })));
 
             // Set background color for all pages
             const bgRgb = this.hexToRgb(backgroundColor);
@@ -1707,9 +1679,6 @@ class ShotListController {
             // Draw headers on first page
             drawHeaders();
 
-            // Track total shots drawn
-            let totalShotsDrawn = 0;
-            
             // Process shots grouped by scene
             sortedScenes.forEach(([sceneNum, sceneShots], sceneIndex) => {
                 // Draw a line before each scene (except the first one)
@@ -1731,16 +1700,9 @@ class ShotListController {
                     y += 3;
                 }
 
-                let shotsDrawnInScene = 0;
                 sceneShots.forEach((shot, shotIndex) => {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/8b3c9a05-4886-47b7-83c2-fd4e9c9af8ce',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ShotListController.js:1713',message:'About to draw shot',data:{shotId:shot.id,sceneNumber:shot.sceneNumber,shotNumber:shot.shotNumber,shotIndex:shotIndex,sceneIndex:sceneIndex,yPosition:y,tableEndY:tableEndY,needsNewPage:y + rowHeight * 3 > tableEndY},timestamp:Date.now(),runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                    // #endregion
                     // Check if we need a new page
                     if (y + rowHeight * 3 > tableEndY) {
-                        // #region agent log
-                        fetch('http://127.0.0.1:7242/ingest/8b3c9a05-4886-47b7-83c2-fd4e9c9af8ce',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ShotListController.js:1715',message:'Adding new page before drawing shot',data:{shotId:shot.id,currentPage:currentPage,yBefore:y},timestamp:Date.now(),runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-                        // #endregion
                         addPageNumber(currentPage);
                         pdf.addPage();
                         currentPage++;
@@ -1767,11 +1729,6 @@ class ShotListController {
                     // (scene summary will set its own background later)
                     let x = margin;
                     let maxLines = 1;
-                    
-                    console.log(`[PDF Export] Drawing shot: Scene ${shot.sceneNumber}, Shot ${shot.shotNumber}, Index ${shotIndex}`);
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/8b3c9a05-4886-47b7-83c2-fd4e9c9af8ce',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ShotListController.js:1738',message:'Drawing shot row',data:{shotId:shot.id,sceneNumber:shot.sceneNumber,shotNumber:shot.shotNumber,yPosition:y,maxLines:maxLines},timestamp:Date.now(),runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                    // #endregion
 
                     allColumns.forEach((col, colIndex) => {
                         const cellValue = getCellValue(shot, col);
@@ -1802,18 +1759,10 @@ class ShotListController {
                     });
 
                     y += rowHeight * maxLines + 1;
-                    shotsDrawnInScene++;
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/8b3c9a05-4886-47b7-83c2-fd4e9c9af8ce',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ShotListController.js:1755',message:'Finished drawing shot',data:{shotId:shot.id,yAfter:y,shotsDrawnInScene:shotsDrawnInScene,totalShotsInScene:sceneShots.length},timestamp:Date.now(),runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                    // #endregion
                 });
-                
+
                 // Add spacing between shots and scene summary to prevent overlap
                 y += 2;
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/8b3c9a05-4886-47b7-83c2-fd4e9c9af8ce',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ShotListController.js:1758',message:'Finished scene',data:{sceneNumber:sceneNum,shotsDrawn:shotsDrawnInScene,totalShotsInScene:sceneShots.length,allShotIds:sceneShots.map(s=>s.id)},timestamp:Date.now(),runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                // #endregion
-                totalShotsDrawn += shotsDrawnInScene;
 
                 // Add scene summary after each scene
                 if (y + rowHeight * 2 > tableEndY) {
@@ -1922,9 +1871,6 @@ class ShotListController {
                 return `${seconds}s (${frames} frames)`;
             };
 
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/8b3c9a05-4886-47b7-83c2-fd4e9c9af8ce',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ShotListController.js:1897',message:'Before project summary',data:{totalShotsDrawn:totalShotsDrawn,totalShotsRetrieved:shots.length,allShotIdsRetrieved:shots.map(s=>s.id)},timestamp:Date.now(),runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-            // #endregion
             y += 5;
             pdf.setFontSize(10);
             pdf.setFont(undefined, 'bold');

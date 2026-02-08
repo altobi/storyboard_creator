@@ -2969,26 +2969,7 @@ class DrawingCanvas {
                         const actualY = shape.y();
                         const actualWidth = shape.width ? shape.width() : undefined;
                         const actualHeight = shape.height ? shape.height() : undefined;
-                        
-                        // Log original shape position before conversion (for first shape only)
-                        if (shapeIndex === 0 && this.backgroundImageUrl) {
-                            console.log('[SAVE] First shape before conversion:', {
-                                className: shapeData.className,
-                                actualX: actualX,
-                                actualY: actualY,
-                                actualWidth: actualWidth,
-                                actualHeight: actualHeight,
-                                shapeDataX: shapeData.x,
-                                shapeDataY: shapeData.y,
-                                shapeDataWidth: shapeData.width,
-                                shapeDataHeight: shapeData.height,
-                                canvasSize: this.width + 'x' + this.height,
-                                imageSize: this.backgroundImageWidth + 'x' + this.backgroundImageHeight,
-                                scaleX: this.imageScaleX,
-                                scaleY: this.imageScaleY
-                            });
-                        }
-                        
+
                         // If we have a background image with scaling, convert coordinates to image space
                         if (this.backgroundImageUrl && this.imageScaleX && this.imageScaleY) {
                             // Convert shape coordinates from canvas space to original image space
@@ -3046,17 +3027,6 @@ class DrawingCanvas {
                                     // Note: The image itself doesn't need scaling, but the display dimensions do
                                     // The image data URL is already at the correct resolution
                                 }
-                            }
-                            
-                            // Log converted position (for first shape only)
-                            if (shapeIndex === 0) {
-                                console.log('[SAVE] First shape after conversion:', {
-                                    x: shapeData.x,
-                                    y: shapeData.y,
-                                    width: shapeData.width,
-                                    height: shapeData.height,
-                                    convertedFrom: `(${actualX}, ${actualY}) -> (${convertedX}, ${convertedY})`
-                                });
                             }
                         }
                         

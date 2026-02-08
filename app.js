@@ -179,8 +179,6 @@ class StoryboardCreator {
                         console.warn('Could not clear IndexedDB project data:', e);
                     }
                 }
-                
-                console.log('[INIT] Cleared all cached project data - user must open a project file');
             } catch (e) {
                 console.error('Error clearing cached data:', e);
             }

@@ -399,20 +399,13 @@ class StorageService {
             }
             
             if (this.app.previsController && this.app.previsController.previsManager) {
-                console.log('[LOAD] Restoring timeline data from saved project', {
-                    timelineLength: data.project.previz.timeline?.length || 0,
-                    videoTracksCount: data.project.previz.videoTracks?.length || 0,
-                    audioTracksCount: data.project.previz.audioTracks?.length || 0,
-                    activeWorkspace: data.project.activeWorkspace
-                });this.app.previsController.previsManager.loadTimelineData(data.project.previz);
+                this.app.previsController.previsManager.loadTimelineData(data.project.previz);
                 // Restore video and audio tracks
                 if (data.project.previz.videoTracks && this.app.previsController) {
                     this.app.previsController.videoTracks = data.project.previz.videoTracks;
-                    console.log('[LOAD] Restored video tracks:', this.app.previsController.videoTracks.length);
                 }
                 if (data.project.previz.audioTracks && this.app.previsController) {
                     this.app.previsController.audioTracks = data.project.previz.audioTracks;
-                    console.log('[LOAD] Restored audio tracks:', this.app.previsController.audioTracks.length);
                 }
                 // Restore clip track assignments
                 if (data.project.previz.clipTrackAssignments && this.app.previsController) {
@@ -420,7 +413,6 @@ class StorageService {
                     data.project.previz.clipTrackAssignments.forEach(({ clipId, trackId }) => {
                         this.app.previsController.clipTrackAssignments.set(clipId, trackId);
                     });
-                    console.log('[LOAD] Restored clip track assignments:', this.app.previsController.clipTrackAssignments.size);
                 }
             } else {
                 console.warn('[LOAD] Could not initialize previsController/previsManager for timeline data loading');}

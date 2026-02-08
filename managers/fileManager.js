@@ -425,15 +425,8 @@ function simpleHash(str) {
     async save() {
         // If no project path exists, use Save As (this will show dialog)
         if (!this.app.currentProjectPath) {
-            console.log('[SAVE] No project path, using Save As');
-                    return await this.saveAs();
+            return await this.saveAs();
         }
-        console.log('[SAVE] Starting save operation', {
-            hasFileHandle: !!this.fileHandle,
-            fileHandleName: this.fileHandle?.name,
-            currentProjectPath: this.app.currentProjectPath,
-            supportsFileSystemAccess: this.supportsFileSystemAccess
-        });
         try {
             // CRITICAL: Ensure all images have URLs before saving
             // Without URLs, projects won't work across browsers or after reload
@@ -491,18 +484,13 @@ function simpleHash(str) {
                         // Permission denied - fall back to Save As
                         return await this.saveAs();
                     }
-                    console.log('[SAVE] Creating writable stream...');
                     const writable = await this.fileHandle.createWritable();
-                    console.log('[SAVE] Writable stream created, truncating file...');
                     // Truncate file to 0 bytes first to ensure complete overwrite
                     await writable.truncate(0);
-                    console.log('[SAVE] File truncated, writing data blob (size:', dataBlob.size, 'bytes)...');
                     await writable.write(dataBlob);
-                    console.log('[SAVE] Data written, closing stream...');
                     await writable.close();
-                    console.log('[SAVE] File write completed successfully!');
-                    
-                    // Verify the file was written by reading it back (for debugging)
+
+                    // Verify the file was written by reading it back
                     try {
                         const file = await this.fileHandle.getFile();
                         const fileText = await file.text();
@@ -520,7 +508,6 @@ function simpleHash(str) {
                     
                     // If fileHandle is invalid or permission denied, fall back to Save As
                     if (writeError.name === 'NotAllowedError' || writeError.name === 'SecurityError' || writeError.message.includes('permission')) {
-                        console.log('[SAVE] Permission error, falling back to Save As');
                         return await this.saveAs();
                     }
                     throw writeError;
@@ -542,9 +529,8 @@ function simpleHash(str) {
                 return true;
             } else {
                 // Safari: No File System Access API, so we can't write to file directly
-                // Just save to localStorage/IndexedDB silently (no download dialog)
+                // Just save to localStorage/IndexedDB (no download dialog)
                 // The project will persist in browser storage and can be exported via Save As if needed
-                console.log('[SAVE] No File System Access API support, saving to localStorage/IndexedDB only');
                 this.app.hasUnsavedChanges = false;
                 this.app.lastChangeTime = null;
                 this.app.updateSaveStatus();
@@ -936,12 +922,7 @@ function simpleHash(str) {
                 }
                     this.fileHandle = fileHandle;
                     this.app.currentProjectPath = fileHandle.name;
-                    console.log('[OPEN] File handle stored:', {
-                    hasFileHandle: !!this.fileHandle,
-                    fileName: fileHandle.name,
-                    currentProjectPath: this.app.currentProjectPath
-                });
-                
+
                 // Store the directory of the opened file as last used (duplicate check removed)
                 // Note: getParent() may not be supported in all browsers (e.g., Safari)
                 // This was already done above, so we skip it here to avoid duplicate calls
@@ -1521,14 +1502,6 @@ function simpleHash(str) {
                 if (this.app.previsController && this.app.previsController.previsManager) {
                     const timelineData = this.app.previsController.previsManager.getTimelineData();
                     const externalClipsCount = timelineData?.timeline?.filter(c => c.isExternalFile === true).length || 0;
-                    const storyboardClipsCount = timelineData?.timeline?.filter(c => !c.isExternalFile).length || 0;
-                    console.log('[SAVE] createLightweightProject - timeline data:', {
-                        totalClips: timelineData?.timeline?.length || 0,
-                        externalClipsCount: externalClipsCount,
-                        storyboardClipsCount: storyboardClipsCount,
-                        hasVideoTracks: (timelineData?.videoTracks?.length || 0) > 0,
-                        hasAudioTracks: (timelineData?.audioTracks?.length || 0) > 0
-                    });
                     return timelineData;
                 }
                     console.warn('[SAVE] No previsManager available for save');

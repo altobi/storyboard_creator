@@ -1245,17 +1245,8 @@ class PrevisManager {
             trackId: c.trackId,
             fileType: c.fileType
         }));
-        
-        console.log('[SAVE] getTimelineData called', {
-            totalTimelineLength: this.timeline.length,
-            externalFilesCount: externalFilesCount,
-            storyboardClipsCount: storyboardClipsCount,
-            videoTracksCount: this.app.previsController?.videoTracks?.length || 0,
-            audioTracksCount: this.app.previsController?.audioTracks?.length || 0,
-            clipTrackAssignmentsCount: clipTrackAssignmentsArray.length,
-            externalFileIds: this.timeline.filter(c => c.isExternalFile).map(c => c.id),
-            clipDetails: clipDetails
-        });// CRITICAL: Return a deep copy of the timeline to ensure all data is saved
+
+        // CRITICAL: Return a deep copy of the timeline to ensure all data is saved
         // This prevents any reference issues that might cause data loss
         const timelineCopy = this.timeline.map(clip => {
             return {
@@ -1296,17 +1287,7 @@ class PrevisManager {
         if (!data || !data.timeline) {
             console.warn('[LOAD] No timeline data to load');
             return;
-        }const externalFilesCount = data.timeline.filter(c => c.isExternalFile === true).length;
-        const storyboardClipsCount = data.timeline.filter(c => !c.isExternalFile).length;
-        
-        console.log('[LOAD] Loading timeline data', {
-            totalClips: data.timeline.length,
-            externalFilesCount: externalFilesCount,
-            storyboardClipsCount: storyboardClipsCount,
-            videoTracksCount: data.videoTracks?.length || 0,
-            audioTracksCount: data.audioTracks?.length || 0,
-            externalFileIds: data.timeline.filter(c => c.isExternalFile).map(c => c.id)
-        });
+        }
 
         // CRITICAL: Restore timeline exactly as saved - don't modify it
         // But ensure storyboard clips have a trackId (default to video_1 if missing)
@@ -1342,24 +1323,18 @@ class PrevisManager {
             data.clipTrackAssignments.forEach(({ clipId, trackId }) => {
                 this.app.previsController.clipTrackAssignments.set(clipId, trackId);
             });
-            console.log('[LOAD] Restored clip track assignments:', this.app.previsController.clipTrackAssignments.size);
         }
-        
+
         // Restore track definitions
         if (data.videoTracks && this.app.previsController) {
             this.app.previsController.videoTracks = data.videoTracks;
-            console.log('[LOAD] Restored video tracks:', this.app.previsController.videoTracks.length);
         }
         if (data.audioTracks && this.app.previsController) {
             this.app.previsController.audioTracks = data.audioTracks;
-            console.log('[LOAD] Restored audio tracks:', this.app.previsController.audioTracks.length);
         }
-        
+
         // Mark that we've loaded timeline data to prevent rebuild
-        this.timelineDataLoaded = true;console.log('[LOAD] Timeline data loaded successfully', {
-            timelineLength: this.timeline.length,
-            externalFilesInTimeline: this.timeline.filter(c => c.isExternalFile === true).length
-        });
+        this.timelineDataLoaded = true;
     }
 
     /**
