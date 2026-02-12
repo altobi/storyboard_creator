@@ -680,7 +680,7 @@ class ShotListController {
 
             const takes = parseInt(shot.predictedTakes) || 1;
             const durationMinutes = (durationFrames / this.app.shotListManager.getFrameRate()) / 60;
-            const shotTime = (setupTime + durationMinutes) * takes * productionMultiplier;
+            const shotTime = ((takes * durationMinutes) + setupTime) * productionMultiplier;
             sceneExpectedTime += shotTime;
         });
 
