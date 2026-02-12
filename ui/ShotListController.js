@@ -753,7 +753,7 @@ class ShotListController {
 
             // Expected time = (setup + duration) * takes * multiplier
             const durationMinutes = (durationFrames / this.app.shotListManager.getFrameRate()) / 60;
-            const shotTime = (setupTime + durationMinutes) * takes * productionMultiplier;
+            const shotTime = ((takes * durationMinutes) + setupTime) * productionMultiplier;
             totalExpectedTime += shotTime;
         });
 
@@ -1789,7 +1789,7 @@ class ShotListController {
                     sceneDurationFrames += shot.durationFrames || 0;
                     const takes = parseInt(shot.predictedTakes) || 1;
                     const durationMinutes = (shot.durationFrames / frameRate) / 60;
-                    sceneExpectedTime += (setupTime + durationMinutes) * takes * productionMultiplier;
+                    sceneExpectedTime += ((takes * durationMinutes) + setupTime) * productionMultiplier;
                 });
 
                 const formatTime = (minutes) => {
@@ -1852,7 +1852,7 @@ class ShotListController {
                 totalDurationFrames += shot.durationFrames || 0;
                 const takes = parseInt(shot.predictedTakes) || 1;
                 const durationMinutes = (shot.durationFrames / frameRate) / 60;
-                totalExpectedTime += (setupTime + durationMinutes) * takes * productionMultiplier;
+                totalExpectedTime += ((takes * durationMinutes) + setupTime) * productionMultiplier;
             });
 
             const formatTime = (minutes) => {
